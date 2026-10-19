@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "./components/MainLayout";
 import Home from "./pages/Home";
+
 import Login from "./pages/Login";
 
 
@@ -10,6 +11,7 @@ function App() {
       {/* Pages WITH navbar */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
+        
       </Route>
 
       {/* Pages WITHOUT navbar */}

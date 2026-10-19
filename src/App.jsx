@@ -1,14 +1,24 @@
-function MyButton() {
+import { Routes, Route } from "react-router-dom";
+import MainLayout from "./components/MainLayout";
+import Home from "./pages/Home";
+
+import Login from "./pages/Login";
+
+
+function App() {
   return (
-    <button>I'm a button</button>
+    <Routes>
+      {/* Pages WITH navbar */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
+        
+      </Route>
+
+      {/* Pages WITHOUT navbar */}
+      <Route path="/login" element={<Login />} />
+
+    </Routes>
   );
 }
 
-export default function MyApp() {
-  return (
-    <div>
-      <h1>Welcome to my app</h1>
-      <MyButton />
-    </div>
-  );
-}
+export default App;

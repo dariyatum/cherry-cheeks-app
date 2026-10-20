@@ -3,7 +3,7 @@ import MainLayout from "./components/MainLayout";
 import Home from "./pages/Home";
 
 import Login from "./pages/Login";
-
+import Checkout from "./pages/Checkout";
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
       {/* Pages WITH navbar */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
-        
+        <Route path="/checkout" element={<Checkout />} />
       </Route>
 
       {/* Pages WITHOUT navbar */}

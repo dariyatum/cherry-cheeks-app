@@ -58,37 +58,40 @@ const reviews = [
 ];
 
 const eyebrow = "text-xs font-semibold uppercase tracking-[0.2em] text-cherry";
+const container = "mx-auto max-w-[90%] px-5 md:px-8";
 
 function Home() {
   return (
-    <div className="bg-cream mx-auto max-w-[90%]">
+    <div className="bg-cream">
       {/* Hero */}
-      <section className="grid bg-blush max-w-[100%]  lg:grid-cols-[3fr_4fr]">
-        <div className="flex flex-col justify-center px-[5%] py-16 lg:py-24">
-          <p className={`${eyebrow} mb-6`}>The color collection · 2026</p>
-          <h1 className="font-display text-5xl leading-tight text-gray-900 sm:text-6xl">
-            Reveal your quiet radiance.
-          </h1>
-          <p className="mt-6 max-w-md leading-relaxed text-gray-600">
-            Intuitive color, effortless application, and sensorial textures
-            shaped in Seoul for the beauty of every day.
-          </p>
-          <div className="mt-8">
-            <Button to="/products">Explore the collection</Button>
+      <section className="bg-[#F2D9DA]">
+        <div className={`${container} grid lg:grid-cols-[3fr_4fr]`}>
+          <div className="flex flex-col justify-center py-16 lg:py-24">
+            <p className={`${eyebrow} mb-6`}>The color collection · 2026</p>
+            <h1 className="font-display text-5xl leading-tight text-gray-900 sm:text-6xl">
+              Reveal your quiet radiance.
+            </h1>
+            <p className="mt-6 max-w-md leading-relaxed text-gray-600">
+              Intuitive color, effortless application, and sensorial textures
+              shaped in Seoul for the beauty of every day.
+            </p>
+            <div className="mt-8">
+              <Button to="/products">Explore the collection</Button>
+            </div>
           </div>
-        </div>
 
-        <div className="relative h-[55vh] min-h-[300px] w-full">
-          <img
-            src={hero}
-            alt="Cherry Cheeks color collection"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          <div className="relative h-[55vh] min-h-[300px] w-full overflow-hidden rounded-bl-3xl rounded-tr-3xl lg:h-auto">
+            <img
+              src={hero}
+              alt="Cherry Cheeks color collection"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </div>
         </div>
       </section>
 
       {/* Categories */}
-      <section className="mx-auto max-w-[95%] mt-20 py-6">
+      <section className={`${container} mt-20 py-6`}>
         <div className="grid gap-5 md:grid-cols-3">
           {categories.map((c) => (
             <Link
@@ -117,8 +120,8 @@ function Home() {
       </section>
 
       {/* Our story */}
-      <section className="mt-6 bg-sand py-16 lg:py-24">
-        <div className="mx-auto grid max-w-[95%] items-center gap-10 lg:grid-cols-2">
+      <section className="mt-6 bg-[#F2D9DA] py-16 lg:py-24">
+        <div className={`${container} grid items-center gap-10 lg:grid-cols-2`}>
           <img
             src={founder}
             alt="Mr. Kim MinJuu, founder of Cherry Cheeks"
@@ -148,7 +151,7 @@ function Home() {
       </section>
 
       {/* Everyday essentials */}
-      <section className="mx-auto max-w-[95%] pb-20">
+      <section className={`${container} pt-20 pb-20`}>
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className={`${eyebrow} mb-2`}>Loved by makeup</p>
@@ -172,30 +175,32 @@ function Home() {
       </section>
 
       {/* Reviews */}
-      <section className="mx-auto max-w-[95%] pb-16 lg:pb-24">
-        <div className="mb-8 text-center">
-          <p className={`${eyebrow} mb-2`}>Notes from our makeup community</p>
-          <h2 className="font-display text-4xl text-gray-900">Softly polished</h2>
-        </div>
+      <section className="w-full bg-[#E9DED0] pt-20">
+        <div className={`${container} pb-16 lg:pb-24`}>
+          <div className="mb-8 text-center">
+            <p className={`${eyebrow} mb-2`}>Notes from our makeup community</p>
+            <h2 className="font-display text-4xl text-gray-900">Softly polished</h2>
+          </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
-          {reviews.map((r) => (
-            <figure
-              key={r.id}
-              className="rounded-2xl border border-cherry/15 bg-white p-6"
-            >
-              <p className="text-sm tracking-widest text-cherry" aria-label="5 out of 5 stars">
-                ★★★★★
-              </p>
-              <blockquote className="mt-3 font-display text-xl text-gray-800">
-                “{r.quote}”
-              </blockquote>
-              <figcaption className="mt-4 text-sm">
-                <span className="font-semibold text-gray-900">{r.name}</span>
-                <span className="block text-xs text-gray-500">{r.detail}</span>
-              </figcaption>
-            </figure>
-          ))}
+          <div className="grid gap-5 md:grid-cols-2">
+            {reviews.map((r) => (
+              <figure
+                key={r.id}
+                className="rounded-2xl border border-cherry/15 bg-white p-6"
+              >
+                <p className="text-sm tracking-widest text-cherry" aria-label="5 out of 5 stars">
+                  ★★★★★
+                </p>
+                <blockquote className="mt-3 font-display text-xl text-gray-800">
+                  “{r.quote}”
+                </blockquote>
+                <figcaption className="mt-4 text-sm">
+                  <span className="font-semibold text-gray-900">{r.name}</span>
+                  <span className="block text-xs text-gray-500">{r.detail}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </section>
     </div>

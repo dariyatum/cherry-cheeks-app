@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 
 import Login from "./pages/Login";
 import Checkout from "./pages/Checkout";
+import About from "./pages/About";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/about" element={<About />} />
       </Route>
 
       {/* Pages WITHOUT navbar */}

@@ -3,4 +3,5 @@ dist
 build
 .git
 .env
+Dockerfile
 npm-debug.log

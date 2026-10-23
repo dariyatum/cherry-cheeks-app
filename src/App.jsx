@@ -10,6 +10,7 @@ import BillingShipping from "./pages/BillingShipping";
 import Payment from "./pages/Payment";
 import OrderReview from "./pages/OrderReview";
 import OrderConfirmation from "./pages/OrderConfirmation";
+import About from "./pages/About";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="/payment" element={<Payment />} />
         <Route path="/orderreview" element={<OrderReview />} />
         <Route path="/orderconfirmation" element={<OrderConfirmation />} />
+        <Route path="/about" element={<About />} />
       </Route>
 
       {/* Pages WITHOUT navbar */}

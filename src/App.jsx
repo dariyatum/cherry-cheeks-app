@@ -5,6 +5,11 @@ import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import Login from "./pages/Login";
 import Contact from "./pages/Contact";
+import Cart from "./pages/Cart";
+import BillingShipping from "./pages/BillingShipping";
+import Payment from "./pages/Payment";
+import OrderReview from "./pages/OrderReview";
+import OrderConfirmation from "./pages/OrderConfirmation";
 
 function App() {
   return (
@@ -15,6 +20,11 @@ function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/billingshipping" element={<BillingShipping/>} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/orderreview" element={<OrderReview />} />
+        <Route path="/orderconfirmation" element={<OrderConfirmation />} />
       </Route>
 
       {/* Pages WITHOUT navbar */}

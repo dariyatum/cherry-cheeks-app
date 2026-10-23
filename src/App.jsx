@@ -1,10 +1,16 @@
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "./components/MainLayout";
 import Home from "./pages/Home";
-import Products from "./pages/Products"
+import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
-
+import Contact from "./pages/Contact";
+import Cart from "./pages/Cart";
+import BillingShipping from "./pages/BillingShipping";
+import Payment from "./pages/Payment";
+import OrderReview from "./pages/OrderReview";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import About from "./pages/About";
 
 function App() {
   return (
@@ -13,11 +19,18 @@ function App() {
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/billingshipping" element={<BillingShipping/>} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/orderreview" element={<OrderReview />} />
+        <Route path="/orderconfirmation" element={<OrderConfirmation />} />
+        <Route path="/about" element={<About />} />
       </Route>
 
       {/* Pages WITHOUT navbar */}
       <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register/>} />
     </Routes>
   );
 }

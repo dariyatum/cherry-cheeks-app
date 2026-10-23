@@ -99,15 +99,16 @@ function Navbar() {
         }`}
       >
         {/* Logo */}
-        <Link
-          to="/"
-          className="flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cherry"
-        >
-          <CherryLogo />
-          <span className="text-xl font-medium uppercase tracking-wider text-gray-900 sm:text-2xl">
-            Cherry Cheeks
-          </span>
-        </Link>
+
+           <Link
+              to="/"
+              className="mb-4 inline-flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cherry"
+            >
+              <img src="/public/logo1.png" alt="" className="h-15 w-auto" />
+              <span className="text-xl font-medium uppercase tracking-wider text-gray-900 sm:text-2xl pt-4">
+                Cherry Cheeks
+              </span>
+            </Link>
 
         {/* Desktop links (center) */}
         <ul className="hidden items-center justify-center gap-8 md:flex">

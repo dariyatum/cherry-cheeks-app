@@ -3,7 +3,11 @@ import MainLayout from "./components/MainLayout";
 import Home from "./pages/Home";
 
 import Login from "./pages/Login";
-import Checkout from "./pages/Checkout";
+import Cart from "./pages/Cart";
+import BillingShipping from "./pages/BillingShipping";
+import Payment from "./pages/Payment";
+import OrderReview from "./pages/OrderReview";
+import OrderConfirmation from "./pages/OrderConfirmation";
 
 function App() {
   return (
@@ -11,7 +15,11 @@ function App() {
       {/* Pages WITH navbar */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/billingshipping" element={<BillingShipping/>} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/orderreview" element={<OrderReview />} />
+        <Route path="/orderconfirmation" element={<OrderConfirmation />} />
       </Route>
 
       {/* Pages WITHOUT navbar */}

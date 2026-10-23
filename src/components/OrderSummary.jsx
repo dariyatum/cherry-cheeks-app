@@ -78,7 +78,7 @@ const styles = `
     margin: 24px 0;
   }
 
-  /* Rows like "Subtotal ........ £138.00" */
+  /* Rows like "Subtotal ........ $138.00" */
   .row {
     display: flex;
     justify-content: space-between;
@@ -100,9 +100,13 @@ const styles = `
     font-size: 26px;
   }
 
-  /* The purple button */
+  /* The wine-red button (text + arrow icon) */
   .order-button {
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     padding: 16px;
     border: none;
     border-radius: 999px;
@@ -115,16 +119,16 @@ const styles = `
     background: #763d4e;
   }
 
-  /* "Secure checkout" text */
-  .os-secure {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
-  font-size: 11px;
-  color: var(--os-muted);
-}
+  /* "Secure checkout" text with lock icon */
+  .secure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0 0;
+    font-size: 12px;
+    color: #8a7a70;
+  }
 `;
 
 // ---------- 2. Sample products ----------
@@ -136,9 +140,9 @@ const sampleItems = [
 ];
 
 // ---------- 3. Helper: show a number as money ----------
-// Example: 48 becomes "£48.00"
+// Example: 48 becomes "$48.00"
 function showMoney(number) {
-  return "£" + number.toFixed(2);
+  return "$" + number.toFixed(2);
 }
 
 // ---------- 4. The component ----------
@@ -228,19 +232,43 @@ function OrderSummary({
           <span>{showMoney(total)}</span>
         </div>
 
-        {/* Button */}
+        {/* Button with arrow icon */}
         <button className="order-button" onClick={onContinue}>
-          {buttonLabel} →
+          {buttonLabel}
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12h14" />
+            <path d="m12 5 7 7-7 7" />
+          </svg>
         </button>
 
-        <div className="os-secure">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="4" y="11" width="16" height="10" rx="2" />
-            <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+        {/* Secure text with lock icon */}
+        <p className="secure">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
           Secure checkout · encrypted &amp; protected
-        </div>
+        </p>
       </div>
     </>
   );

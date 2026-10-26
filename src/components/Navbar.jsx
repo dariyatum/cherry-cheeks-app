@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { Search, ShoppingBag, CircleUser, Menu, X } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const links = [
   { name: "Home", href: "/" },
@@ -30,9 +31,9 @@ function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const searchRef = useRef(null);
   const location = useLocation(); // used for the login redirect
+  const { user } = useAuth();
   const { pathname } = location;
   const cartCount = 2;
-  console.log(location);
 
   // Close menus when the page changes
   useEffect(() => {
@@ -104,7 +105,7 @@ function Navbar() {
               to="/"
               className="mb-4 inline-flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cherry"
             >
-              <img src="/public/logo1.png" alt="" className="h-15 w-auto" />
+              <img src="/logo1.png" alt="" className="h-15 w-auto" />
               <span className="text-xl font-medium uppercase tracking-wider text-gray-900 sm:text-2xl pt-4">
                 Cherry Cheeks
               </span>
@@ -148,15 +149,21 @@ function Navbar() {
             )}
           </Link>
 
-          {/* Account: remembers the current page so login can return here */}
-          <Link
-            to="/login"
-            state={{ from: location }}
-            aria-label="Account"
-            className={iconBtn}
-          >
-            <CircleUser size={28} strokeWidth={1.5} />
-          </Link>
+          {/* Account: profile if logged in, otherwise login (remembers this page) */}
+          {user ? (
+            <Link to="/profile" aria-label="Profile" className={iconBtn}>
+              <CircleUser size={28} strokeWidth={1.5} />
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              state={{ from: location.pathname + location.search }}
+              aria-label="Log in"
+              className={iconBtn}
+            >
+              <CircleUser size={28} strokeWidth={1.5} />
+            </Link>
+          )}
 
           {/* Hamburger (mobile only) */}
           <button

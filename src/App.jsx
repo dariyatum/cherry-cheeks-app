@@ -13,6 +13,8 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import About from "./pages/About";
 import Profile from "./pages/Profile";
 
+import AdminLayout from "./components/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
 function App() {
   return (
     <Routes>
@@ -36,7 +38,7 @@ function App() {
      
 
     <Route path="/admin" element={<AdminLayout />}>
-      <Route index element={<h1 className="font-display text-3xl">Overview</h1>} />
+      <Route index element={<AdminOverview />} />
       <Route path="products" element={<h1 className="font-display text-3xl">Products</h1>} />
       <Route path="orders" element={<h1 className="font-display text-3xl">Orders</h1>} />
       <Route path="customers" element={<h1 className="font-display text-3xl">Customers</h1>} />

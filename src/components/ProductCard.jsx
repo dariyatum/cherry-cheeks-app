@@ -51,8 +51,6 @@ export default function ProductCard({
       <p className="product-card__price">{shown}</p>
     </>
   );
-<<<<<<< HEAD
-=======
 
   // With an id the whole card links to its detail page
   return id !== undefined ? (
@@ -62,5 +60,4 @@ export default function ProductCard({
   ) : (
     <div className="product-card">{content}</div>
   );
->>>>>>> origin/main
 }

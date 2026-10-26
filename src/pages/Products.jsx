@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { products } from "../data/products";
+import { useProducts } from "../data/useProducts";
 
-const CATEGORIES = ["Face", "Eyes", "Lips"];
-const FINISHES = ["Matte", "Satin", "Dewy", "Shimmer"];
 const PRICES = [
-  { label: "Under $25", test: (p) => p < 25 },
-  { label: "$25–$50", test: (p) => p >= 25 && p <= 50 },
-  { label: "$50+", test: (p) => p > 50 },
+  { label: "Under $10", test: (p) => p < 10 },
+  { label: "$10–$20", test: (p) => p >= 10 && p <= 20 },
+  { label: "$20+", test: (p) => p > 20 },
 ];
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 8; // 12 products make 2 pages
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Inter:wght@400;500;600;700&display=swap');
@@ -47,9 +45,10 @@ const css = `
 .group h4 { margin: 0 0 14px; font: 600 11px 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; }
 .group label { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; color: #5f5852; cursor: pointer; }
 .group input { width: 16px; height: 16px; margin: 0; accent-color: #8a3050; }
+.filters-toggle { display: none; }
 
 /* Top bar */
-.topbar { display: flex; justify-content: space-between; margin-bottom: 24px; font-size: 12px; color: #5f5852; }
+.topbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-bottom: 24px; font-size: 12px; color: #5f5852; }
 .ship { color: #5b7a5e; }
 
 /* Grid + card */
@@ -68,10 +67,25 @@ const css = `
 .pages button { width: 38px; height: 38px; border: 1px solid #e2d9cf; border-radius: 50%; background: white; font: 500 12px 'Inter', sans-serif; cursor: pointer; }
 .pages button.active { background: #8a3050; border-color: #8a3050; color: white; }
 
-/* Phones: filters go above the grid */
+/* Tablets and phones: filters collapse behind a button */
 @media (max-width: 800px) {
-  .layout { flex-direction: column; gap: 0; }
-  .sidebar { flex: none; }
+  .layout { flex-direction: column; gap: 0; padding-top: 24px; }
+  .sidebar { display: none; flex: none; }
+  .sidebar.open { display: block; margin-bottom: 24px; }
+  .filters-toggle {
+    display: block; width: 100%; margin-bottom: 16px; padding: 14px;
+    border: 1px solid #e2d9cf; border-radius: 999px; background: white;
+    font: 500 13px 'Inter', sans-serif; cursor: pointer;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero { padding: 40px 0 24px; }
+  .toolbar { flex-direction: column; }
+  .search { max-width: none; flex: none; }
+  .sort select { width: 100%; }
+  .grid { gap: 24px 14px; }
+  .card-link h3 { font-size: 20px; }
 }
 `;
 
@@ -113,23 +127,27 @@ function ProductCard({ id, name, price, image, badge, category }) {
   return (
     <Link to={`/product/${id}`} className="card-link">
       <div className="image-box">
-        <img src={image} alt={name} />
+        {image && <img src={image} alt={name} />}
         {badge && <span className="badge">{badge}</span>}
       </div>
-      <p className="meta">Makeup · {category}</p>
+      {category && <p className="meta">{category}</p>}
       <h3>{name}</h3>
-      <p className="price">${price}</p>
+      <p className="price">${Number(price).toFixed(2)}</p>
     </Link>
   );
 }
 
 export default function Products() {
+  // Data from /student-data/products.json and categories.json
+  const { products, categories: categoryList, loading, error } = useProducts();
+
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("best");
   const [categories, setCategories] = useState([]);
   const [prices, setPrices] = useState([]);
   const [finishes, setFinishes] = useState([]);
   const [page, setPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Add or remove a value from a list, and go back to page 1
   function toggle(list, setList, value) {
@@ -147,11 +165,23 @@ export default function Products() {
     setPage(1);
   }
 
+  if (loading) return <p style={{ padding: 40 }}>Loading products…</p>;
+  if (error)
+    return <p style={{ padding: 40 }}>Could not load products: {error}</p>;
+
+  // Filter options come from the data
+  const categoryNames = categoryList.map((c) => c.name);
+  const finishNames = [
+    ...new Set(products.map((p) => p.finish).filter(Boolean)),
+  ];
+
   // 1. Filter
   const q = search.toLowerCase();
   const filtered = products
     .filter((p) =>
-      `${p.name} ${p.category} ${p.finish}`.toLowerCase().includes(q),
+      `${p.name} ${p.brand} ${p.sku} ${p.category} ${p.finish || ""}`
+        .toLowerCase()
+        .includes(q),
     )
     .filter((p) => categories.length === 0 || categories.includes(p.category))
     .filter((p) => finishes.length === 0 || finishes.includes(p.finish))
@@ -226,8 +256,7 @@ export default function Products() {
         className="wrap layout"
         style={{ paddingInline: "clamp(16px, 4vw, 24px)" }}
       >
-        {" "}
-        <aside className="sidebar">
+        <aside className={showFilters ? "sidebar open" : "sidebar"}>
           <div className="filters-head">
             <h3>Filters</h3>
             <button className="clear" onClick={clearAll}>
@@ -238,7 +267,7 @@ export default function Products() {
           <FilterGroup
             title="Category"
             allLabel="All products"
-            options={CATEGORIES}
+            options={categoryNames}
             selected={categories}
             onToggle={(v) => toggle(categories, setCategories, v)}
             onClear={() => setCategories([])}
@@ -251,16 +280,27 @@ export default function Products() {
             onToggle={(v) => toggle(prices, setPrices, v)}
             onClear={() => setPrices([])}
           />
-          <FilterGroup
-            title="Finish"
-            allLabel="All finishes"
-            options={FINISHES}
-            selected={finishes}
-            onToggle={(v) => toggle(finishes, setFinishes, v)}
-            onClear={() => setFinishes([])}
-          />
+          {finishNames.length > 0 && (
+            <FilterGroup
+              title="Finish"
+              allLabel="All finishes"
+              options={finishNames}
+              selected={finishes}
+              onToggle={(v) => toggle(finishes, setFinishes, v)}
+              onClear={() => setFinishes([])}
+            />
+          )}
         </aside>
+
         <main className="content">
+          {/* Shown only on phones */}
+          <button
+            className="filters-toggle"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            {showFilters ? "Hide filters" : "Show filters"}
+          </button>
+
           <div className="topbar">
             <span>{sorted.length} products</span>
             <span className="ship">Complimentary shipping over $75</span>

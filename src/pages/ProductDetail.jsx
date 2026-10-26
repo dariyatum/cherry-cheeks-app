@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { products } from "../data/products";
+import { useProducts } from "../data/useProducts";
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Inter:wght@400;500;600;700&display=swap');
@@ -96,25 +96,33 @@ function Icon({ children }) {
 const fmt = (n) => (Number.isInteger(n) ? n : n.toFixed(2));
 
 export default function ProductDetail() {
+  // Data from /student-data/products.json and categories.json
+  const { products, loading, error } = useProducts();
+
   const { id } = useParams();
   const navigate = useNavigate();
-  const product = products.find((p) => p.id === Number(id));
 
   const [imageIndex, setImageIndex] = useState(0);
   const [shade, setShade] = useState(null);
   const [qty, setQty] = useState(1);
   const [open, setOpen] = useState({ apply: true, shades: true, range: true });
 
+  if (loading) return <p style={{ padding: 40 }}>Loading…</p>;
+  if (error)
+    return <p style={{ padding: 40 }}>Could not load products: {error}</p>;
+
+  const product = products.find((p) => p.id === Number(id));
+
   if (!product) {
     return (
-      <p>
+      <p style={{ padding: 40 }}>
         Product not found. <Link to="/products">Back to products</Link>
       </p>
     );
   }
 
-  // Fallbacks so products without the new fields still work
-  const images = product.images || [product.image];
+  // Fallbacks so products without the extra fields still work
+  const images = product.images?.length ? product.images : [product.image];
   const shades = product.shades || [];
   const selectedShade = shade || shades[0];
 

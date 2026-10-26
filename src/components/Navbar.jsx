@@ -33,7 +33,7 @@ function Navbar() {
   const location = useLocation(); // used for the login redirect
   const { user } = useAuth();
   const { pathname } = location;
-  const cartCount = 2;
+  const cartCount = 0;
 
   // Close menus when the page changes
   useEffect(() => {

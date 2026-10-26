@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { products } from "../data/products";
+import { useParams, Link } from "react-router-dom";
+import { products } from "../../data/products";
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Inter:wght@400;500;600;700&display=swap');

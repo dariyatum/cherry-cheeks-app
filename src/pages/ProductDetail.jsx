@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { products } from "../data/products";
 
 const css = `
@@ -17,8 +17,8 @@ const css = `
 
 /* Gallery */
 .gallery { display: flex; gap: 16px; }
-.thumbs { display: flex; flex-direction: column; gap: 12px; }
-.thumb { width: 84px; height: 100px; padding: 0; border: 2px solid transparent; border-radius: 14px; overflow: hidden; background: none; cursor: pointer; }
+.thumbs { display: flex; flex-direction: column; gap: 12px; overflow-x: auto; }
+.thumb { width: 84px; height: 100px; padding: 0; border: 2px solid transparent; border-radius: 14px; overflow: hidden; background: none; cursor: pointer; flex: none; }
 .thumb.active { border-color: #8a3050; }
 .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .main { position: relative; flex: 1; aspect-ratio: 602 / 720; border-radius: 28px; overflow: hidden; background: #efe3d6; }
@@ -63,6 +63,15 @@ const css = `
   .gallery { flex-direction: column-reverse; }
   .thumbs { flex-direction: row; }
 }
+
+@media (max-width: 600px) {
+  .wrap { padding: 16px 16px 56px; }
+  .body { gap: 24px; }
+  .main { border-radius: 20px; }
+  .thumb { width: 64px; height: 76px; }
+  .desc { font-size: 14px; }
+  .add { font-size: 12px; }
+}
 `;
 
 // Small line icon used by the perks list
@@ -88,6 +97,7 @@ const fmt = (n) => (Number.isInteger(n) ? n : n.toFixed(2));
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const product = products.find((p) => p.id === Number(id));
 
   const [imageIndex, setImageIndex] = useState(0);
@@ -119,10 +129,18 @@ export default function ProductDetail() {
   }
 
   function addToCart() {
-    // Replace with your real cart logic later
-    alert(
-      `Added ${qty} × ${product.name}${selectedShade ? ` (${selectedShade})` : ""}`,
-    );
+    navigate("/cart", {
+      state: {
+        product: {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+        },
+        shade: selectedShade,
+        qty,
+      },
+    });
   }
 
   return (

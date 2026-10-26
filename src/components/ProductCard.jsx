@@ -5,7 +5,7 @@ export default function ProductCard({name, price, imageUrl, status}){
             <span className="product-card__status">{status}</span>
             <img src={imageUrl} alt={name} className="product-card__image" />
             <h3>{name}</h3>
-            <p>${price.toFixed(2)}</p>
+            {/* <p>${price.toFixed(2)}</p> */}
             
         </div>
     )

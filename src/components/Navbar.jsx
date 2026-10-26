@@ -29,8 +29,10 @@ function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const searchRef = useRef(null);
-  const { pathname } = useLocation();
+  const location = useLocation(); // used for the login redirect
+  const { pathname } = location;
   const cartCount = 2;
+  console.log(location);
 
   // Close menus when the page changes
   useEffect(() => {
@@ -146,8 +148,14 @@ function Navbar() {
             )}
           </Link>
 
-          <Link to="/login" aria-label="Account" className={iconBtn}>
-            <CircleUser size={30} strokeWidth={1.5} />
+          {/* Account: remembers the current page so login can return here */}
+          <Link
+            to="/login"
+            state={{ from: location }}
+            aria-label="Account"
+            className={iconBtn}
+          >
+            <CircleUser size={28} strokeWidth={1.5} />
           </Link>
 
           {/* Hamburger (mobile only) */}
@@ -159,7 +167,8 @@ function Navbar() {
             onClick={() => {
               setOpen(!open);
               setSearchOpen(false);
-            }}>
+            }}
+          >
             {open ? <X size={26} /> : <Menu size={26} />}
           </button>
         </div>
@@ -169,7 +178,8 @@ function Navbar() {
       <div
         className={`grid transition-all duration-300 ease-in-out ${
           searchOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-        }`}>
+        }`}
+      >
         <div className="overflow-hidden">
           <form
             role="search"
@@ -179,19 +189,22 @@ function Navbar() {
               console.log("search:", q); // TODO: navigate(`/products?q=${q}`)
               setSearchOpen(false);
             }}
-            className="mx-auto flex max-w-3xl items-center gap-3 px-5 pb-4">
+            className="mx-auto flex max-w-3xl items-center gap-3 px-5 pb-4"
+          >
             <input
               ref={searchRef}
               name="q"
               type="search"
               tabIndex={searchOpen ? 0 : -1}
               placeholder="Search products..."
-              className="w-full rounded-full border border-gray-200 bg-gray-50 px-5 py-2.5 text-base outline-none transition focus:border-cherry focus:bg-white focus:ring-2 focus:ring-cherry/30"/>
+              className="w-full rounded-full border border-gray-200 bg-gray-50 px-5 py-2.5 text-base outline-none transition focus:border-cherry focus:bg-white focus:ring-2 focus:ring-cherry/30"
+            />
             <button
               type="submit"
               tabIndex={searchOpen ? 0 : -1}
-              className="rounded-full bg-cherry px-5 py-2.5 text-white transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cherry focus-visible:ring-offset-2">
-                Search
+              className="rounded-full bg-cherry px-5 py-2.5 text-white transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cherry focus-visible:ring-offset-2"
+            >
+              Search
             </button>
           </form>
         </div>

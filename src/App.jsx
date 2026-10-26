@@ -11,7 +11,8 @@ import Payment from "./pages/Payment";
 import OrderReview from "./pages/OrderReview";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import About from "./pages/About";
-import AdminLayout from "./components/AdminLayout";
+import Profile from "./pages/Profile";
+
 function App() {
   return (
     <Routes>
@@ -27,6 +28,7 @@ function App() {
         <Route path="/orderreview" element={<OrderReview />} />
         <Route path="/orderconfirmation" element={<OrderConfirmation />} />
         <Route path="/about" element={<About />} />
+      <Route path="/profile" element={<Profile />} />
       </Route>
 
       {/* Pages WITHOUT navbar */}

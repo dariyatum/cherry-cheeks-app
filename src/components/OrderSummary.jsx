@@ -1,4 +1,5 @@
 import React from "react";
+import useCartItems from "../hooks/useCartItems";
 
 // ---------- 1. CSS (internal) ----------
 // All styles live in this one text block.
@@ -131,28 +132,27 @@ const styles = `
   }
 `;
 
-// ---------- 2. Sample products ----------
-// Used only if the page does not send its own "items".
-const sampleItems = [
-  { id: 1, name: "Botanical Dew Serum", detail: "30 ml", qty: 1, price: 48, color: "#c9955c" },
-  { id: 2, name: "Cloud Soft Moisturiser", detail: "50 ml", qty: 1, price: 42, color: "#e3cdb0" },
-  { id: 3, name: "Petal Lip Tint", detail: "Rosewood · 4 g", qty: 2, price: 24, color: "#a8576d" },
-];
-
-// ---------- 3. Helper: show a number as money ----------
+// ---------- 2. Helper: show a number as money ----------
 // Example: 48 becomes "$48.00"
 function showMoney(number) {
   return "$" + number.toFixed(2);
 }
 
-// ---------- 4. The component ----------
+// ---------- 3. The component ----------
 // These are the "props" the page can send in.
+// If the page sends no "items", the default cart is loaded from the JSON files.
 function OrderSummary({
-  items = sampleItems,
+  items: itemsFromPage,
   deliveryFee = 0,
   buttonLabel = "Continue to billing & shipping",
   onContinue = () => {},
 }) {
+  // Default cart from the JSON files (customer 101 = cart 1)
+  const { items: jsonItems } = useCartItems(101);
+
+  // Use the items from the page; if there are none, use the JSON items
+  const items = itemsFromPage ?? jsonItems;
+
   // Count all items (1 + 1 + 2 = 4)
   let itemCount = 0;
   // Add up all prices (price x quantity)

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Check,
   ChevronRight,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import OrderSummary from "../../components/OrderSummary";
+import useCartItems from "../../hooks/useCartItems";
 
 /* =====================================================
    PART 1: STYLES
@@ -639,13 +640,8 @@ const STEPS = [
 ];
 const CURRENT_STEP = 2;
 
-// Products shown in OrderSummary.
-// OrderSummary reads: id, name, detail, qty, price, color (and image if given).
-const ITEMS = [
-  { id: 1, name: "Botanical Dew Serum", detail: "30 ml", qty: 1, price: 48, color: "#c9955c" },
-  { id: 2, name: "Cloud Soft Moisturiser", detail: "50 ml", qty: 1, price: 42, color: "#e3cdb0" },
-  { id: 3, name: "Petal Lip Tint", detail: "Rosewood · 4 g", qty: 2, price: 24, color: "#a8576d" },
-];
+// Products now come from the Cart page (or from the JSON files).
+// See hooks/useCartItems.js.
 
 const DELIVERY_OPTIONS = [
   { id: "standard", title: "Standard delivery", time: "3–5 business days", price: 0 },
@@ -966,6 +962,12 @@ function HelpBox() {
 
 function BillingShipping({ onNext = () => {} }) {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Items come from the Cart page. If you open this page directly,
+  // we load the default cart from the JSON files.
+  const { items: loadedItems } = useCartItems(101);
+  const items = location.state?.items || loadedItems;
 
   // ----- State (what the page remembers) -----
   const [form, handleFormChange] = useFormFields(EMPTY_SHIPPING);
@@ -1022,6 +1024,7 @@ function BillingShipping({ onNext = () => {} }) {
 
     // 4. Collect everything for the next page
     const data = {
+      items,
       form: { ...form },
       billing: sameAddress ? { ...form } : { ...billing },
       sameAddress,
@@ -1089,7 +1092,7 @@ function BillingShipping({ onNext = () => {} }) {
           {/* RIGHT COLUMN: summary and help */}
           <aside className="sidebar">
             <OrderSummary
-              items={ITEMS}
+              items={items}
               deliveryFee={delivery.price}
               buttonLabel="Continue to payment"
               onContinue={handleContinue}

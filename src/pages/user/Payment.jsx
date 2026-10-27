@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import OrderSummary from "../../components/OrderSummary";
+import useCartItems from "../../hooks/useCartItems";
 
 /* =====================================================
    PART 1: STYLES
@@ -643,12 +644,8 @@ const STEPS = [
 ];
 const CURRENT_STEP = 3;
 
-// Products shown in OrderSummary (same list as the billing page).
-const ITEMS = [
-  { id: 1, name: "Botanical Dew Serum", detail: "30 ml", qty: 1, price: 48, color: "#c9955c" },
-  { id: 2, name: "Cloud Soft Moisturiser", detail: "50 ml", qty: 1, price: 42, color: "#e3cdb0" },
-  { id: 3, name: "Petal Lip Tint", detail: "Rosewood · 4 g", qty: 2, price: 24, color: "#a8576d" },
-];
+// Products now come from the previous page (or from the JSON files).
+// See hooks/useCartItems.js.
 
 // The three ways to pay. "brand" is the bold text on the right.
 const PAYMENT_METHODS = [
@@ -1067,6 +1064,11 @@ function Payment() {
   const previous = location.state || FALLBACK_DATA;
   const { form: shipping, billing, sameAddress, delivery } = previous;
 
+  // Items come from the previous page. If you open this page directly,
+  // we load the default cart from the JSON files.
+  const { items: loadedItems } = useCartItems(101);
+  const items = previous.items || loadedItems;
+
   // ----- State (what the page remembers) -----
   const [method, setMethod] = useState("card");
   const [card, setCard] = useState(EMPTY_CARD);
@@ -1101,8 +1103,10 @@ function Payment() {
 
     // Never pass the full card number or security code to the next page.
     // Only keep what the review page needs to show.
+    // "items" is passed on too, so the review page shows the same products.
     const data = {
       ...previous,
+      items,
       payment: {
         method,
         saveCard,
@@ -1157,7 +1161,7 @@ function Payment() {
           {/* RIGHT COLUMN */}
           <aside className="sidebar">
             <OrderSummary
-              items={ITEMS}
+              items={items}
               deliveryFee={delivery.price}
               buttonLabel="Continue to order review"
               onContinue={handleContinue}

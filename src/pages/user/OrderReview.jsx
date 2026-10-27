@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Check, ChevronRight, ArrowLeft, Truck } from "lucide-react";
 
 import OrderSummary from "../../components/OrderSummary";
+import useCartItems from "../../hooks/useCartItems";
 
 /* =====================================================
    PART 1: STYLES
@@ -470,12 +471,8 @@ const STEPS = [
 ];
 const CURRENT_STEP = 4;
 
-// Products shown in OrderSummary (same list as the other checkout pages).
-const ITEMS = [
-  { id: 1, name: "Botanical Dew Serum", detail: "30 ml", qty: 1, price: 48, color: "#c9955c" },
-  { id: 2, name: "Cloud Soft Moisturiser", detail: "50 ml", qty: 1, price: 42, color: "#e3cdb0" },
-  { id: 3, name: "Petal Lip Tint", detail: "Rosewood · 4 g", qty: 2, price: 24, color: "#a8576d" },
-];
+// Products now come from the previous page (or from the JSON files).
+// See hooks/useCartItems.js.
 
 // Names shown for the payment methods that are not a card
 const PAYMENT_LABELS = {
@@ -545,11 +542,6 @@ function getAddressLines(address) {
     `${address.city || ""} ${address.postcode || ""}`.trim(),
     address.country,
   ].filter(Boolean);
-}
-
-// A simple fake order number for the confirmation page
-function createOrderNumber() {
-  return "MB-" + Math.floor(100000 + Math.random() * 900000);
 }
 
 /* =====================================================
@@ -749,29 +741,26 @@ function OrderReview() {
   const previous = location.state || FALLBACK_DATA;
   const { form: shipping, billing, sameAddress, delivery, giftNote, payment } = previous;
 
+  // Items come from the previous page. If you open this page directly,
+  // we load the default cart from the JSON files.
+  const { items: loadedItems } = useCartItems(101);
+  const items = previous.items || loadedItems;
+
   // Stops a double click from placing the order twice
   const [isPlacing, setIsPlacing] = useState(false);
 
   // ----- Values worked out from the data -----
-  const total = getSubtotal(ITEMS) + delivery.price;
+  const total = getSubtotal(items) + delivery.price;
 
   // ----- Place the order, then go to the confirmation page -----
   function handlePlaceOrder() {
-    if (isPlacing) return;
-    setIsPlacing(true);
+  if (isPlacing) return;
+  setIsPlacing(true);
 
-    const order = {
-      ...previous,
-      items: ITEMS,
-      total,
-      orderNumber: createOrderNumber(),
-    };
-    
-    console.log("Order placed:", order);
-
-    // TODO: send the order to your Laravel API here, then navigate on success.
-    navigate("/orderconfirmation", { state: order });
-  }
+  // The invoice itself is read from invoices.json on the confirmation page.
+  // TODO: send the order to your Laravel API here.
+  navigate("/orderconfirmation", { state: { ...previous, items, total } });
+}
 
   // ----- What the user sees -----
   return (
@@ -818,7 +807,7 @@ function OrderReview() {
           {/* RIGHT COLUMN */}
           <aside className="sidebar">
             <OrderSummary
-              items={ITEMS}
+              items={items}
               deliveryFee={delivery.price}
               buttonLabel={`Place order · ${formatMoney(total)}`}
               onContinue={handlePlaceOrder}

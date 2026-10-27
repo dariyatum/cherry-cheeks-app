@@ -61,7 +61,7 @@ function App() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<h1 className="font-display text-3xl">Overview</h1>} />
+        <Route index element={<AdminOverview />} />
         <Route path="products" element={<h1 className="font-display text-3xl">Products</h1>} />
         <Route path="orders" element={<h1 className="font-display text-3xl">Orders</h1>} />
         <Route path="customers" element={<h1 className="font-display text-3xl">Customers</h1>} />

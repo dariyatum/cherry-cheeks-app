@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useProducts } from "../data/useProducts";
+import { useProducts } from "../../data/useProducts";
 
 const PRICES = [
   { label: "Under $10", test: (p) => p < 10 },

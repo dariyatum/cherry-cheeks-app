@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Check, ChevronRight, ArrowLeft, Truck } from "lucide-react";
 
-import OrderSummary from "../components/OrderSummary";
-import useCartItems from "../hooks/useCartItems";
+import OrderSummary from "../../components/OrderSummary";
+import useCartItems from "../../hooks/useCartItems";
 
 /* =====================================================
    PART 1: STYLES

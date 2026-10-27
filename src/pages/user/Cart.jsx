@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import OrderSummary from "../components/OrderSummary";
-import useCartItems from "../hooks/useCartItems";
+import OrderSummary from "../../components/OrderSummary";
+import useCartItems from "../../hooks/useCartItems";
 
 // ---------- 1. CSS (internal) ----------
 const styles = `

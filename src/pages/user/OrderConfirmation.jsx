@@ -9,8 +9,8 @@ import {
   Truck,
 } from "lucide-react";
 
-import OrderSummary from "../components/OrderSummary";
-import useInvoice from "../hooks/useInvoice";
+import OrderSummary from "../../components/OrderSummary";
+import useInvoice from "../../hooks/useInvoice";
 
 /* =====================================================
    PART 1: STYLES

@@ -11,8 +11,8 @@ import {
   Leaf,
 } from "lucide-react";
 
-import OrderSummary from "../components/OrderSummary";
-import useCartItems from "../hooks/useCartItems";
+import OrderSummary from "../../components/OrderSummary";
+import useCartItems from "../../hooks/useCartItems";
 
 /* =====================================================
    PART 1: STYLES

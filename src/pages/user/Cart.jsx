@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import OrderSummary from "../components/OrderSummary";
+import OrderSummary from "../../components/OrderSummary";
 
 // ---------- 1. CSS (internal) ----------
 const styles = `

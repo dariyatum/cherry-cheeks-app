@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Check, ChevronRight, ArrowLeft, Truck } from "lucide-react";
 
-import OrderSummary from "../components/OrderSummary";
+import OrderSummary from "../../components/OrderSummary";
 
 /* =====================================================
    PART 1: STYLES

@@ -1,10 +1,10 @@
 import { Sprout, FlaskConical, Recycle } from "lucide-react";
 
-import aboutHero from "../assets/images/about-hero.jpg";
-import founderPortrait from "../assets/images/founder-portrait.jpg";
-import teamKim from "../assets/images/team-kim.jpg";
-import teamHana from "../assets/images/team-hana.jpg";
-import teamYuri from "../assets/images/team-yuri.jpg";
+import aboutHero from "../../assets/images/about-hero.jpg";
+import founderPortrait from "../../assets/images/founder-portrait.jpg";
+import teamKim from "../../assets/images/team-kim.jpg";
+import teamHana from "../../assets/images/team-hana.jpg";
+import teamYuri from "../../assets/images/team-yuri.jpg";
 
 const eyebrow = "text-xs font-semibold uppercase tracking-[0.2em] text-cherry";
 const container = "mx-auto max-w-[90%] px-5 md:px-8";

@@ -11,7 +11,7 @@ import {
   Leaf,
 } from "lucide-react";
 
-import OrderSummary from "../components/OrderSummary";
+import OrderSummary from "../../components/OrderSummary";
 
 /* =====================================================
    PART 1: STYLES

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Check,
@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import OrderSummary from "../components/OrderSummary";
+import useInvoice from "../hooks/useInvoice";
 
 /* =====================================================
    PART 1: STYLES
@@ -605,12 +606,7 @@ const STEPS = [
 ];
 const CURRENT_STEP = 5;
 
-// Products shown in OrderSummary (same list as the other checkout pages).
-const ITEMS = [
-  { id: 1, name: "Botanical Dew Serum", detail: "30 ml", qty: 1, price: 48, color: "#c9955c" },
-  { id: 2, name: "Cloud Soft Moisturiser", detail: "50 ml", qty: 1, price: 42, color: "#e3cdb0" },
-  { id: 3, name: "Petal Lip Tint", detail: "Rosewood · 4 g", qty: 2, price: 24, color: "#a8576d" },
-];
+// Products now come from the review page (the order that was placed).
 
 // The three "What happens next?" steps
 const NEXT_STEPS = [
@@ -640,7 +636,7 @@ const PAYMENT_LABELS = {
   applepay: "Apple Pay",
 };
 
-// Used only when you open /confirmation directly (no data from the review page).
+// Used only when you open /orderconfirmation directly (no data from the review page).
 const SAMPLE_ADDRESS = {
   firstName: "Emma",
   lastName: "Laurent",
@@ -666,9 +662,9 @@ const FALLBACK_DATA = {
     cardBrand: "Visa",
     cardLast4: "4242",
   },
-  items: ITEMS,
-  total: 138,
-  orderNumber: "MB-10482",
+  items: [],
+  total: 0,
+  orderNumber: "INV-00000000-00000",
 };
 
 /* =====================================================
@@ -953,14 +949,19 @@ function OrderConfirmation() {
   const location = useLocation();
 
   // Order sent from the review page (or sample data if opened directly)
-  const order = location.state || FALLBACK_DATA;
-  const { form: shipping, billing, sameAddress, delivery, giftNote, payment, orderNumber } = order;
+    const order = location.state || FALLBACK_DATA;
+  const { form: shipping, billing, sameAddress, delivery, giftNote, payment } = order;
 
-  const items = order.items || ITEMS;
-  const total = order.total ?? getSubtotal(items) + delivery.price;
+  // The invoice comes from the teacher's invoices.json (nothing is created)
+  const { invoice, items, loading } = useInvoice(101);
 
-  // The date the order was placed (set once, when the page opens)
-  const [placedDate] = useState(() => new Date());
+  const orderNumber = invoice ? invoice.invoiceNumber : "";
+  const total = invoice ? invoice.total : 0;
+  const placedDate = invoice ? new Date(invoice.createdAt) : new Date();
+
+  if (loading) {
+    return <p style={{ padding: 40, textAlign: "center" }}>Loading your invoice…</p>;
+  }
 
   // "Download receipt" opens the browser print window (Save as PDF works there).
   // TODO: replace with a real receipt file from your Laravel API.
@@ -1004,7 +1005,7 @@ function OrderConfirmation() {
             <NextStepsCard />
 
             <div className="actions">
-              <Link to="/shop" className="btn-primary">
+              <Link to="/products" className="btn-primary">
                 Continue shopping
                 <ArrowRight size={16} />
               </Link>
@@ -1027,7 +1028,7 @@ function OrderConfirmation() {
               className="confirm-summary"
               style={{ "--delivery-label": JSON.stringify(delivery.title) }}
             >
-              <OrderSummary items={items} deliveryFee={delivery.price} />
+              <OrderSummary items={items} deliveryFee={0} />
             </div>
 
             <PaidNote payment={payment} />

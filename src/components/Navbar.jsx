@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { Search, ShoppingBag, CircleUser, Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 
 const links = [
   { name: "Home", href: "/" },
@@ -33,7 +34,7 @@ function Navbar() {
   const location = useLocation(); // used for the login redirect
   const { user } = useAuth();
   const { pathname } = location;
-  const cartCount = 0;
+  const { count: cartCount } = useCart();
 
   // Close menus when the page changes
   useEffect(() => {

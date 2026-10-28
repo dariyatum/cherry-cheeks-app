@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import OrderSummary from "../../components/OrderSummary";
-import useCartItems from "../../hooks/useCartItems";
+import { useCart } from "../../context/CartContext";
 
 // ---------- 1. CSS (internal) ----------
 const styles = `
@@ -392,7 +392,7 @@ const styles = `
 `;
 
 // ---------- 2. Page data ----------
-// Products now come from the JSON files (see hooks/useCartItems.js).
+// Products come from the shared cart (see context/CartContext.jsx).
 
 const steps = ["Your bag", "Billing & shipping", "Payment", "Order review", "Confirmation"];
 
@@ -405,22 +405,16 @@ function showMoney(number) {
 function Cart() {
   const navigate = useNavigate();
 
-  // Load the cart from the JSON files (customer 101 = cart 1)
-  const { items: loadedItems, loading, error } = useCartItems(101);
+  // The shared cart (also used by the header and the product page)
+  const { items: products, setItems: setProducts, loading, error } = useCart();
 
   // Things the page remembers (state)
-  const [products, setProducts] = useState([]);
   const [giftNote, setGiftNote] = useState(false);
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [news, setNews] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [promoMessage, setPromoMessage] = useState("One code per order. No code applied.");
-
-  // Copy the loaded items into state so + / - / Remove still work
-  useEffect(() => {
-    setProducts(loadedItems);
-  }, [loadedItems]);
 
   // Count items for the "Your bag" header
   let itemCount = 0;
@@ -475,7 +469,7 @@ function Cart() {
         <div className="cart-container">
           {/* ----- Top ----- */}
           <div className="breadcrumb">
-            <a href="/">Home</a>
+            <Link to="/">Home</Link>
             {/* Chevron icon */}
             <svg
               width="12"
@@ -604,9 +598,9 @@ function Cart() {
               <section className="card about-card">
                 <div className="card-header">
                   <h2 className="card-title">A little about you</h2>
-                  <a className="link" href="/login">
+                  <Link className="link" to="/login">
                     Already have an account? Sign in
-                  </a>
+                  </Link>
                 </div>
 
                 <p className="about-text">
@@ -638,7 +632,7 @@ function Cart() {
 
               {/* Bottom row */}
               <div className="bottom-row">
-                <a className="link link-icon" href="/shop">
+                <Link className="link link-icon" to="/products">
                   {/* Left arrow icon */}
                   <svg
                     width="14"
@@ -655,7 +649,7 @@ function Cart() {
                     <path d="M19 12H5" />
                   </svg>
                   Continue shopping
-                </a>
+                </Link>
 
                 <span className="returns-note">
                   {/* Package icon */}

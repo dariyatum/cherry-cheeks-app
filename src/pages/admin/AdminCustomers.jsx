@@ -13,7 +13,7 @@ const fields = {
 
 // Only accounts with this role are shown as customers.
 // Set to null if accounts.json has no role field.
-const CUSTOMER_ROLE = "customer";
+const CUSTOMER_ROLE = null;
 
 const card = "rounded-2xl border border-cherry/10 bg-white p-6";
 
@@ -99,6 +99,8 @@ function AdminCustomers() {
                   <th scope="col" className="py-3 font-medium">Email</th>
                   <th scope="col" className="py-3 font-medium">Phone</th>
                   <th scope="col" className="py-3 font-medium">Status</th>
+                  <th scope="col" className="py-3 font-medium">Role</th>
+                
                 </tr>
               </thead>
               <tbody className="divide-y divide-cherry/10">
@@ -118,6 +120,7 @@ function AdminCustomers() {
                       </td>
                       <td className="py-3 text-gray-700">{c[fields.email] ?? "-"}</td>
                       <td className="py-3 text-gray-700">{c[fields.phone] ?? "-"}</td>
+                      
                       <td className="py-3">
                         <span
                           className={`rounded-full px-3 py-1 text-xs font-medium ${
@@ -127,8 +130,11 @@ function AdminCustomers() {
                           }`}
                         >
                           {active ? "Active" : "Inactive"}
+                          
                         </span>
+                        
                       </td>
+                      <td className="py-3 text-gray-700">{c[fields.role] ?? "-"}</td>
                     </tr>
                   );
                 })}

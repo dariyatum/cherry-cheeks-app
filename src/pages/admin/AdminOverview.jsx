@@ -28,7 +28,7 @@ const f = {
 };
 
 // Set to null if accounts.json has no role field
-const CUSTOMER_ROLE = "customer";
+const CUSTOMER_ROLE = null;
 const LOW_STOCK_LIMIT = 20;
 
 const money = new Intl.NumberFormat("en-US", {

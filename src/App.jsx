@@ -18,6 +18,7 @@ import Cart from "./pages/user/Cart";
 import BillingShipping from "./pages/user/BillingShipping";
 import About from "./pages/user/About";
 import Profile from "./pages/user/Profile";
+import Register from "./pages/user/Register";
 
 import AdminLayout from "./components/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
@@ -55,6 +56,7 @@ function App() {
       </Route>
 
       {/* Pages WITHOUT navbar */}
+      <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 

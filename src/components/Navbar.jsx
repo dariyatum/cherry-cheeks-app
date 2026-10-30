@@ -103,7 +103,7 @@ function Navbar() {
 
            <Link
               to="/"
-              className="mb-4 mt-3 inline-flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cherry"
+              className="mb-4 mt-1 inline-flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cherry"
             >
               <img src="/logo1.png" alt="" className="h-15 w-auto" />
               <span className="text-xl font-medium uppercase tracking-wider text-gray-900 sm:text-2xl pt-4">

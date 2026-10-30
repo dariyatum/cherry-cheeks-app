@@ -1,55 +1,149 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   DollarSign,
   ReceiptText,
   Users,
   Package,
-  TrendingUp,
   ArrowRight,
   AlertTriangle,
 } from "lucide-react";
 
-const stats = [
-  { label: "Revenue", value: "$12,480", change: "+12%", icon: DollarSign },
-  { label: "Orders", value: "326", change: "+8%", icon: ReceiptText },
-  { label: "Customers", value: "1,204", change: "+5%", icon: Users },
-  { label: "Products", value: "48", change: "+2", icon: Package },
-];
+const files = {
+  products: "/student-data/products.json",
+  accounts: "/student-data/accounts.json",
+  invoices: "/student-data/invoices.json",
+};
 
-const week = [
-  { day: "Mon", sales: 420 },
-  { day: "Tue", sales: 680 },
-  { day: "Wed", sales: 540 },
-  { day: "Thu", sales: 910 },
-  { day: "Fri", sales: 760 },
-  { day: "Sat", sales: 1100 },
-  { day: "Sun", sales: 830 },
-];
+// Change these names to match invoices.json and accounts.json
+const f = {
+  invoiceId: "id",
+  invoiceCustomer: "accountId",
+  invoiceTotal: "total",
+  invoiceDate: "date",
+  invoiceStatus: "status",
+  accountId: "id",
+  accountName: "fullName",
+  accountRole: "role",
+};
 
-const lowStock = [
-  { name: "Silk Veil Cushion", left: 4 },
-  { name: "Velvet Shadow Palette", left: 6 },
-  { name: "Rose Petal Lip Tint", left: 3 },
-];
+// Set to null if accounts.json has no role field
+const CUSTOMER_ROLE = null;
+const LOW_STOCK_LIMIT = 20;
 
-const orders = [
-  { id: "#1042", customer: "Jina Park", total: "$96", status: "Shipped" },
-  { id: "#1041", customer: "Maya Chen", total: "$42", status: "Paid" },
-  { id: "#1040", customer: "Sora Lee", total: "$138", status: "Pending" },
-  { id: "#1039", customer: "Emma Kim", total: "$48", status: "Shipped" },
-  { id: "#1038", customer: "Lina Cho", total: "$84", status: "Paid" },
-];
+const money = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
 
-const statusStyle = {
-  Shipped: "bg-green-100 text-green-800",
-  Paid: "bg-blue-100 text-blue-800",
-  Pending: "bg-amber-100 text-amber-800",
+const statusStyles = {
+  paid: "bg-blue-100 text-blue-800",
+  shipped: "bg-green-100 text-green-800",
+  completed: "bg-green-100 text-green-800",
+  pending: "bg-amber-100 text-amber-800",
+  cancelled: "bg-red-100 text-red-800",
 };
 
 const card = "rounded-2xl border border-cherry/10 bg-white p-6";
 
+async function getJson(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Could not load ${url}`);
+  const data = await response.json();
+  return Array.isArray(data) ? data : [];
+}
+
 function AdminOverview() {
-  const max = Math.max(...week.map((d) => d.sales));
+  const [data, setData] = useState({ products: [], accounts: [], invoices: [] });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [products, accounts, invoices] = await Promise.all([
+          getJson(files.products),
+          getJson(files.accounts),
+          getJson(files.invoices),
+        ]);
+        setData({ products, accounts, invoices });
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const view = useMemo(() => {
+    const { products, accounts, invoices } = data;
+
+    const activeProducts = products.filter((p) => p.active !== false);
+    const customers = CUSTOMER_ROLE
+      ? accounts.filter((a) => a[f.accountRole] === CUSTOMER_ROLE)
+      : accounts;
+
+    const revenue = invoices.reduce(
+      (sum, i) => sum + Number(i[f.invoiceTotal] || 0),
+      0
+    );
+
+    // Sales per day, last 7 days of data
+    const dated = invoices
+      .map((i) => ({ date: new Date(i[f.invoiceDate]), total: Number(i[f.invoiceTotal] || 0) }))
+      .filter((i) => !Number.isNaN(i.date.getTime()));
+
+    let week = [];
+    if (dated.length > 0) {
+      const end = new Date(Math.max(...dated.map((i) => i.date.getTime())));
+      for (let k = 6; k >= 0; k--) {
+        const day = new Date(end);
+        day.setDate(end.getDate() - k);
+        week.push({
+          label: day.toLocaleDateString("en-US", { weekday: "short" }),
+          sales: dated
+            .filter((i) => i.date.toDateString() === day.toDateString())
+            .reduce((sum, i) => sum + i.total, 0),
+        });
+      }
+    }
+
+    const lowStock = activeProducts
+      .filter((p) => p.stockQuantity <= LOW_STOCK_LIMIT)
+      .sort((a, b) => a.stockQuantity - b.stockQuantity)
+      .slice(0, 5);
+
+    const names = new Map(
+      accounts.map((a) => [String(a[f.accountId]), a[f.accountName]])
+    );
+
+    const recent = [...invoices]
+      .sort((a, b) => new Date(b[f.invoiceDate]) - new Date(a[f.invoiceDate]))
+      .slice(0, 5)
+      .map((i) => ({
+        id: i[f.invoiceId],
+        customer: names.get(String(i[f.invoiceCustomer])) ?? "Guest",
+        total: Number(i[f.invoiceTotal] || 0),
+        status: i[f.invoiceStatus],
+      }));
+
+    return {
+      stats: [
+        { label: "Revenue", value: money.format(revenue), note: "From all invoices", icon: DollarSign },
+        { label: "Orders", value: invoices.length, note: "Total invoices", icon: ReceiptText },
+        { label: "Customers", value: customers.length, note: "Registered accounts", icon: Users },
+        { label: "Products", value: activeProducts.length, note: "Active in catalog", icon: Package },
+      ],
+      week,
+      maxSales: Math.max(...week.map((d) => d.sales), 1),
+      lowStock,
+      recent,
+    };
+  }, [data]);
+
+  if (loading) return <p className="text-gray-600">Loading dashboard...</p>;
+  if (error) return <p role="alert" className="text-red-600">{error}</p>;
 
   return (
     <div className="space-y-8">
@@ -58,58 +152,71 @@ function AdminOverview() {
           Welcome back, Admin
         </h1>
         <p className="mt-1 text-sm text-gray-600">
-          Here is what is happening in your shop this week.
+          Here is what is happening in your shop.
         </p>
       </div>
 
+      {/* Stat cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map(({ label, value, change, icon: Icon }) => (
+        {view.stats.map(({ label, value, note, icon: Icon }) => (
           <div key={label} className={card}>
-            <div className="flex items-center justify-between">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blush-deep text-cherry">
-                <Icon size={18} aria-hidden="true" />
-              </span>
-              <span className="flex items-center gap-1 text-xs font-medium text-green-700">
-                <TrendingUp size={14} aria-hidden="true" />
-                {change}
-              </span>
-            </div>
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blush-deep text-cherry">
+              <Icon size={18} aria-hidden="true" />
+            </span>
             <p className="mt-4 font-display text-3xl text-gray-900">{value}</p>
-            <p className="text-sm text-gray-500">{label}</p>
+            <p className="text-sm font-medium text-gray-700">{label}</p>
+            <p className="text-xs text-gray-500">{note}</p>
           </div>
         ))}
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[2fr_1fr]">
-        <section className={card} aria-label="Sales this week">
-          <h2 className="font-display text-xl text-gray-900">Sales this week</h2>
-          <div className="mt-6 flex h-48 items-end gap-3">
-            {week.map((d) => (
-              <div key={d.day} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
+        {/* Sales chart */}
+        <section className={card} aria-label="Sales, last 7 days">
+          <h2 className="font-display text-xl text-gray-900">
+            Sales, last 7 days
+          </h2>
+          {view.week.length === 0 ? (
+            <p className="mt-6 text-sm text-gray-500">No dated invoices yet.</p>
+          ) : (
+            <div className="mt-6 flex h-48 items-end gap-3">
+              {view.week.map((d, i) => (
                 <div
-                  className="w-full rounded-t-lg bg-cherry/80 transition-colors hover:bg-cherry"
-                  style={{ height: `${(d.sales / max) * 100}%` }}
-                  title={`${d.day}: $${d.sales}`}
-                />
-                <span className="text-xs text-gray-500">{d.day}</span>
-              </div>
-            ))}
-          </div>
+                  key={i}
+                  className="flex h-full flex-1 flex-col items-center justify-end gap-2"
+                >
+                  <div
+                    className="w-full rounded-t-lg bg-cherry/80 transition-colors hover:bg-cherry"
+                    style={{ height: `${Math.max((d.sales / view.maxSales) * 100, 2)}%` }}
+                    title={`${d.label}: ${money.format(d.sales)}`}
+                  />
+                  <span className="text-xs text-gray-500">{d.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
+        {/* Low stock */}
         <section className={card} aria-label="Low stock">
           <h2 className="flex items-center gap-2 font-display text-xl text-gray-900">
             <AlertTriangle size={18} className="text-amber-600" aria-hidden="true" />
             Low stock
           </h2>
-          <ul className="mt-4 divide-y divide-cherry/10">
-            {lowStock.map((p) => (
-              <li key={p.name} className="flex items-center justify-between py-3 text-sm">
-                <span className="text-gray-800">{p.name}</span>
-                <span className="font-medium text-amber-700">{p.left} left</span>
-              </li>
-            ))}
-          </ul>
+          {view.lowStock.length === 0 ? (
+            <p className="mt-4 text-sm text-gray-500">All products are well stocked.</p>
+          ) : (
+            <ul className="mt-4 divide-y divide-cherry/10">
+              {view.lowStock.map((p) => (
+                <li key={p.id} className="flex items-center justify-between py-3 text-sm">
+                  <span className="text-gray-800">{p.name}</span>
+                  <span className="font-medium text-amber-700">
+                    {p.stockQuantity} left
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
           <Link
             to="/admin/products"
             className="mt-3 inline-flex items-center gap-1 text-sm text-cherry hover:underline"
@@ -119,6 +226,7 @@ function AdminOverview() {
         </section>
       </div>
 
+      {/* Recent orders */}
       <section className={card} aria-label="Recent orders">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-xl text-gray-900">Recent orders</h2>
@@ -130,32 +238,41 @@ function AdminOverview() {
           </Link>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[420px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-cherry/10 text-xs uppercase tracking-wider text-gray-500">
-                <th scope="col" className="py-3 font-medium">Order</th>
-                <th scope="col" className="py-3 font-medium">Customer</th>
-                <th scope="col" className="py-3 font-medium">Total</th>
-                <th scope="col" className="py-3 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-cherry/10">
-              {orders.map((o) => (
-                <tr key={o.id}>
-                  <td className="py-3 font-medium text-gray-900">{o.id}</td>
-                  <td className="py-3 text-gray-700">{o.customer}</td>
-                  <td className="py-3 text-gray-700">{o.total}</td>
-                  <td className="py-3">
-                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusStyle[o.status]}`}>
-                      {o.status}
-                    </span>
-                  </td>
+        {view.recent.length === 0 ? (
+          <p className="text-sm text-gray-500">No orders yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[420px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-cherry/10 text-xs uppercase tracking-wider text-gray-500">
+                  <th scope="col" className="py-3 font-medium">Order</th>
+                  <th scope="col" className="py-3 font-medium">Customer</th>
+                  <th scope="col" className="py-3 font-medium">Total</th>
+                  <th scope="col" className="py-3 font-medium">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-cherry/10">
+                {view.recent.map((o, i) => {
+                  const status = String(o.status ?? "-");
+                  const style =
+                    statusStyles[status.toLowerCase()] ?? "bg-gray-100 text-gray-700";
+                  return (
+                    <tr key={o.id ?? i}>
+                      <td className="py-3 font-medium text-gray-900">#{o.id}</td>
+                      <td className="py-3 text-gray-700">{o.customer}</td>
+                      <td className="py-3 text-gray-700">{money.format(o.total)}</td>
+                      <td className="py-3">
+                        <span className={`rounded-full px-3 py-1 text-xs font-medium ${style}`}>
+                          {status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </div>
   );

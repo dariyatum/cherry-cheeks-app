@@ -22,6 +22,7 @@ import Profile from "./pages/user/Profile";
 import AdminLayout from "./components/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminProducts from "./pages/admin/AdminProducts";
+import AdminCustomers from "./pages/admin/AdminCustomers";
 function App() {
   return (
     <Routes>
@@ -75,6 +76,9 @@ function App() {
           path="customers"
           element={<h1 className="font-display text-3xl">Customers</h1>}
         />
+        <Route path="products" element={<h1 className="font-display text-3xl">Products</h1>} />
+        <Route path="orders" element={<h1 className="font-display text-3xl">Orders</h1>} />
+       <Route path="customers" element={<AdminCustomers />} />
       </Route>
 
       {/* Unknown URL → home */}

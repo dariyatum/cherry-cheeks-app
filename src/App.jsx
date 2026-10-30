@@ -23,11 +23,13 @@ import AdminLayout from "./components/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminOrder from "./pages/admin/AdminOrder";
 
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminCustomers from "./pages/admin/AdminCustomers";
 function App() {
   return (
     <Routes>
       {/* Admin layout*/}
-      
+
       {/* Pages WITH navbar */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
@@ -45,7 +47,9 @@ function App() {
         <Route
           path="/profile"
           element={
-            <ProtectedRoute roles={["user", "admin"]}><Profile /></ProtectedRoute>
+            <ProtectedRoute roles={["user", "admin"]}>
+              <Profile />
+            </ProtectedRoute>
           }
         />
       </Route>
@@ -63,10 +67,18 @@ function App() {
           </ProtectedRoute>
         }
       >
-        <Route index element={<h1 className="font-display text-3xl">Overview</h1>} />
+        <Route index element={<AdminOverview />} />
+        <Route path="products" element={<AdminProducts />} />
+        <Route path="products/:category" element={<AdminProducts />} />
+        <Route
+          path="orders"
+          element={<h1 className="font-display text-3xl">Orders</h1>}
+        />
         <Route path="products" element={<h1 className="font-display text-3xl">Products</h1>} />
         <Route path="orders" element={<AdminOrder />} />
         <Route path="customers" element={<h1 className="font-display text-3xl">Customers</h1>} />
+        <Route path="orders" element={<h1 className="font-display text-3xl">Orders</h1>} />
+       <Route path="customers" element={<AdminCustomers />} />
       </Route>
 
       {/* Unknown URL → home */}

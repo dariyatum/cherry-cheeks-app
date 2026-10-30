@@ -1,66 +1,99 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import useCartItems from "../hooks/useCartItems";
+import { useAuth } from "./AuthContext";
 
 const CartContext = createContext(null);
 
+const keyFor = (user) => (user ? `cart_${user.id}` : null);
+
+function readCart(key) {
+  if (!key) return [];
+  try {
+    const saved = JSON.parse(localStorage.getItem(key));
+    return Array.isArray(saved) ? saved : [];
+  } catch {
+    return [];
+  }
+}
+
 export function CartProvider({ children }) {
-  // Starting cart from the teacher's carts.json (customer 101)
-  const { items: jsonItems, loading, error } = useCartItems(101);
-  const [items, setItems] = useState([]);
-  const [seeded, setSeeded] = useState(false);
+  const { user } = useAuth();
+  const key = keyFor(user);
 
-  // When the JSON arrives, put it in the cart once.
-  // Keep anything the customer already added before it arrived.
+  const [items, setItems] = useState(() => readCart(key));
+  const [loadedKey, setLoadedKey] = useState(key);
+
+  // When someone logs in or out, load THEIR cart (logged out = empty)
   useEffect(() => {
-    if (loading || seeded) return;
-    setItems((added) => [
-      ...jsonItems,
-      ...added.filter((a) => !jsonItems.some((j) => j.id === a.id)),
-    ]);
-    setSeeded(true);
-  }, [loading, seeded, jsonItems]);
+    setItems(readCart(key));
+    setLoadedKey(key);
+  }, [key]);
 
-  // Add a product from the product page
-  function addItem(product, qty = 1) {
-    const stock = Number(product.stockQuantity) || 99;
+  // Save every change to this user's cart
+  useEffect(() => {
+    if (key && loadedKey === key) {
+      localStorage.setItem(key, JSON.stringify(items));
+    }
+  }, [items, key, loadedKey]);
 
-    setItems((current) => {
-      const found = current.find((i) => i.id === product.id);
+  // Add a product (or increase its quantity if it is already in the cart)
+  const addItem = (product, qty = 1) => {
+    if (!user) return;
+    const stock = product.stock ?? 99;
 
-      // Already in the cart: increase the quantity (never above the stock)
+    setItems((prev) => {
+      const found = prev.find((p) => p.id === product.id);
       if (found) {
-        return current.map((i) =>
-          i.id === product.id ? { ...i, qty: Math.min(stock, i.qty + qty) } : i
+        return prev.map((p) =>
+          p.id === product.id
+            ? { ...p, qty: Math.min(stock, p.qty + qty) }
+            : p
         );
       }
-
-      // New product: add a row in the same shape the pages already use
       return [
-        ...current,
+        ...prev,
         {
           id: product.id,
           name: product.name,
-          tagline: product.category,
-          detail: product.brand,
-          qty: Math.min(stock, qty),
           price: product.price,
+          image: product.image || product.images?.[0],
+          tagline: product.tagline,
+          detail: product.detail,
           stock,
-          color: "#e3cdb0",
+          qty: Math.min(stock, qty),
         },
       ];
     });
-  }
+  };
 
-  // Total quantity, for the header badge
-  const count = items.reduce((sum, i) => sum + i.qty, 0);
+  const removeItem = (id) =>
+    setItems((prev) => prev.filter((p) => p.id !== id));
+
+  const clearCart = () => setItems([]);
+
+  const count = items.reduce((sum, p) => sum + p.qty, 0);
+  const total = items.reduce((sum, p) => sum + p.price * p.qty, 0);
 
   return (
-    <CartContext.Provider value={{ items, setItems, addItem, count, loading, error }}>
+    <CartContext.Provider
+      value={{
+        items,
+        setItems,
+        addItem,
+        removeItem,
+        clearCart,
+        count,
+        total,
+        loading: false,
+        error: null,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
 }
 
 export function useCart() {
-  return useContext(CartContext);
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used inside <CartProvider>");
+  return ctx;
 }

@@ -16,9 +16,15 @@ export default function ProtectedRoute({ children, roles }) {
     );
   }
 
-  // Logged in but wrong role
-  if (roles && !roles.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />;
+  // Logged in but wrong role (case-insensitive compare)
+  if (roles && roles.length > 0) {
+    const userRole = String(user.role || "").toUpperCase();
+    const allowed = roles.map((r) => String(r).toUpperCase());
+
+    if (!allowed.includes(userRole)) {
+      // <-- fixed
+      return <Navigate to="/unauthorized" replace />;
+    }
   }
 
   return children;

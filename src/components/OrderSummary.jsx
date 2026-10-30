@@ -44,6 +44,7 @@ const styles = `
   .product-image {
     width: 88px;
     height: 104px;
+    flex-shrink: 0;
     border-radius: 14px;
     background: #f5ede6;
     display: flex;
@@ -140,18 +141,24 @@ function showMoney(number) {
 
 // ---------- 3. The component ----------
 // These are the "props" the page can send in.
-// If the page sends no "items", the default cart is loaded from the JSON files.
+//   items          the products to show (if none, the default cart is loaded from the JSON files)
+//   deliveryFee    0 = Complimentary, 12 = $12.00
+//   deliveryLabel  the name shown on the delivery row ("Standard delivery", "Express delivery")
+//   buttonLabel    the text of the wine-red button
+//   onContinue     what happens when the button is clicked
 function OrderSummary({
   items: itemsFromPage,
   deliveryFee = 0,
+  deliveryLabel = "Standard delivery",
   buttonLabel = "Continue to billing & shipping",
   onContinue = () => {},
 }) {
   // Default cart from the JSON files (customer 101 = cart 1)
   const { items: jsonItems } = useCartItems(101);
 
-  // Use the items from the page; if there are none, use the JSON items
-  const items = itemsFromPage ?? jsonItems;
+  // Use the items from the page; if there are none, use the JSON items.
+  // "?? []" keeps the page from crashing while the JSON items are still loading.
+  const items = itemsFromPage ?? jsonItems ?? [];
 
   // Count all items (1 + 1 + 2 = 4)
   let itemCount = 0;
@@ -176,37 +183,44 @@ function OrderSummary({
         {/* Title */}
         <div className="order-header">
           <h2 className="order-title">Order summary</h2>
-          <span className="order-count">{itemCount} items</span>
+          <span className="order-count">
+            {itemCount} {itemCount === 1 ? "item" : "items"}
+          </span>
         </div>
 
         {/* Product list */}
-        {items.map((item) => (
-          <div className="product" key={item.id}>
-            <div className="product-image">
-              {item.image ? (
-                <img src={item.image} alt={item.name} />
-              ) : (
-                // No picture? Show a small colored box instead
-                <div
-                  style={{
-                    width: 30,
-                    height: 56,
-                    borderRadius: 6,
-                    background: item.color,
-                  }}
-                ></div>
-              )}
-            </div>
+        {items.map((item) => {
+          // The picture can be "image" or the first of "images"
+          const picture = item.image || item.images?.[0];
 
-            <div>
-              <h3 className="product-name">{item.name}</h3>
-              <p className="product-detail">
-                {item.detail} · Qty {item.qty}
-              </p>
-              <p className="product-price">{showMoney(item.price * item.qty)}</p>
+          return (
+            <div className="product" key={item.id}>
+              <div className="product-image">
+                {picture ? (
+                  <img src={picture} alt={item.name} />
+                ) : (
+                  // No picture? Show a small colored box instead
+                  <div
+                    style={{
+                      width: 30,
+                      height: 56,
+                      borderRadius: 6,
+                      background: item.color,
+                    }}
+                  ></div>
+                )}
+              </div>
+
+              <div>
+                <h3 className="product-name">{item.name}</h3>
+                <p className="product-detail">
+                  {item.detail ? item.detail + " · " : ""}Qty {item.qty}
+                </p>
+                <p className="product-price">{showMoney(item.price * item.qty)}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         <hr className="line" />
 
@@ -216,7 +230,7 @@ function OrderSummary({
           <span>{showMoney(subtotal)}</span>
         </div>
         <div className="row">
-          <span>Standard delivery</span>
+          <span>{deliveryLabel}</span>
           <span>{deliveryFee === 0 ? "Complimentary" : showMoney(deliveryFee)}</span>
         </div>
         <div className="row">

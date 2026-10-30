@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import OrderSummary from "../../components/OrderSummary";
 import { useCart } from "../../context/CartContext";
+import { useProducts } from "../../data/useProducts";
 
 // ---------- 1. CSS (internal) ----------
 const styles = `
@@ -176,6 +177,9 @@ const styles = `
   .bag-row .align-right {
     text-align: right;
   }
+  .bag-head span:nth-child(3) {
+    text-align: center;
+  }
   .bag-row {
     padding: 20px 0;
     border-top: 1px solid #eadfd6;
@@ -215,7 +219,7 @@ const styles = `
 
   /* Quantity box:  [ - 1 + ] */
   .qty-box {
-    display: inline-flex;
+    display:flex;
     align-items: center;
     justify-content: space-between;
     width: 88px;
@@ -224,7 +228,7 @@ const styles = `
     border-radius: 8px;
     background: white;
     font-size: 13px;
-    margin-left: auto;
+    margin: auto;
   }
   .qty-box button {
     border: none;
@@ -386,7 +390,7 @@ const styles = `
       text-align: left;
     }
     .qty-box {
-      margin-left: 0;
+      margin: 0;
     }
   }
 `;
@@ -405,8 +409,16 @@ function showMoney(number) {
 function Cart() {
   const navigate = useNavigate();
 
-  // The shared cart (also used by the header and the product page)
-  const { items: products, setItems: setProducts, loading, error } = useCart();
+   const { items: products, setItems: setProducts, loading, error } = useCart();
+
+  // All products of the shop (these have the pictures)
+  const { products: catalog } = useProducts();
+
+  // The cart items, plus the picture of each product
+  const cartItems = products.map((p) => {
+    const full = (catalog || []).find((x) => x.id === p.id);
+    return { ...p, image: p.image || full?.image };
+  });
 
   // Things the page remembers (state)
   const [giftNote, setGiftNote] = useState(false);
@@ -458,7 +470,7 @@ function Cart() {
     }
     setEmailError("");
     // Send the items to the next page
-    navigate("/billingshipping", { state: { items: products } });
+       navigate("/billingshipping", { state: { items: cartItems, email } });
   }
 
   return (
@@ -532,7 +544,7 @@ function Cart() {
                       <span>TOTAL</span>
                     </div>
 
-                    {products.map((p) => (
+                      {cartItems.map((p) => (
                       <div className="bag-row" key={p.id}>
                         {/* Picture + name */}
                         <div className="bag-product">
@@ -677,8 +689,8 @@ function Cart() {
             {/* ===== RIGHT COLUMN ===== */}
             <div className="right-column">
               {/* Reused component: we send data with props */}
-              <OrderSummary
-                items={products}
+                <OrderSummary
+                items={cartItems}
                 deliveryFee={0}
                 buttonLabel="Continue to billing & shipping"
                 onContinue={goToBilling}

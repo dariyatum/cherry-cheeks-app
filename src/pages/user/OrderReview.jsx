@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { createInvoice } from "../../data/invoiceStore";
+import { useCart } from "../../context/CartContext";
 import { Check, ChevronRight, ArrowLeft, Truck } from "lucide-react";
 
 import OrderSummary from "../../components/OrderSummary";
@@ -736,6 +738,7 @@ function HelpBox() {
 function OrderReview() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { setItems } = useCart();
 
   // Data sent from the payment page (or sample data if opened directly)
   const previous = location.state || FALLBACK_DATA;
@@ -753,14 +756,27 @@ function OrderReview() {
   const total = getSubtotal(items) + delivery.price;
 
   // ----- Place the order, then go to the confirmation page -----
-  function handlePlaceOrder() {
-  if (isPlacing) return;
-  setIsPlacing(true);
+    function handlePlaceOrder() {
+    if (isPlacing || items.length === 0) return;
+    setIsPlacing(true);
 
-  // The invoice itself is read from invoices.json on the confirmation page.
-  // TODO: send the order to your Laravel API here.
-  navigate("/orderconfirmation", { state: { ...previous, items, total } });
-}
+    // 1. Create and save the invoice
+    const invoice = createInvoice({
+      items,
+      email: previous.email || shipping.email,
+      method: payment.method,
+      deliveryFee: delivery.price,
+      shipping,
+      billing,
+      giftNote,
+    });
+
+    // 2. Empty the cart
+    setItems([]);
+
+    // 3. Go to the confirmation page, with the new invoice
+    navigate("/orderconfirmation", { state: { ...previous, items, total, invoice } });
+  }
 
   // ----- What the user sees -----
   return (
@@ -806,9 +822,10 @@ function OrderReview() {
 
           {/* RIGHT COLUMN */}
           <aside className="sidebar">
-            <OrderSummary
+              <OrderSummary
               items={items}
               deliveryFee={delivery.price}
+              deliveryLabel={delivery.title}
               buttonLabel={`Place order · ${formatMoney(total)}`}
               onContinue={handlePlaceOrder}
             />

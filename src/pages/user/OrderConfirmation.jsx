@@ -952,8 +952,17 @@ function OrderConfirmation() {
     const order = location.state || FALLBACK_DATA;
   const { form: shipping, billing, sameAddress, delivery, giftNote, payment } = order;
 
-  // The invoice comes from the teacher's invoices.json (nothing is created)
-  const { invoice, items, loading } = useInvoice(101);
+    // A new order brings its invoice from the review page.
+  // If the page is opened directly, we load the demo invoice from invoices.json.
+  const {
+    invoice: demoInvoice,
+    items: demoItems,
+    loading: demoLoading,
+  } = useInvoice(101);
+
+  const invoice = order.invoice || demoInvoice;
+  const items = order.invoice ? order.items : demoItems;
+  const loading = order.invoice ? false : demoLoading;
 
   const orderNumber = invoice ? invoice.invoiceNumber : "";
   const total = invoice ? invoice.total : 0;
@@ -1028,7 +1037,7 @@ function OrderConfirmation() {
               className="confirm-summary"
               style={{ "--delivery-label": JSON.stringify(delivery.title) }}
             >
-              <OrderSummary items={items} deliveryFee={0} />
+            <OrderSummary items={items} deliveryFee={invoice?.deliveryFee || 0} />
             </div>
 
             <PaidNote payment={payment} />

@@ -1106,6 +1106,7 @@ function Payment() {
     // "items" is passed on too, so the review page shows the same products.
     const data = {
       ...previous,
+      email: previous.email || shipping.email,
       items,
       payment: {
         method,
@@ -1160,9 +1161,10 @@ function Payment() {
 
           {/* RIGHT COLUMN */}
           <aside className="sidebar">
-            <OrderSummary
+              <OrderSummary
               items={items}
               deliveryFee={delivery.price}
+              deliveryLabel={delivery.title}
               buttonLabel="Continue to order review"
               onContinue={handleContinue}
             />

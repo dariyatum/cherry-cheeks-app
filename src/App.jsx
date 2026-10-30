@@ -76,7 +76,7 @@ function App() {
         />
         <Route path="products" element={<h1 className="font-display text-3xl">Products</h1>} />
         <Route path="orders" element={<AdminOrder />} />
-        <Route path="orders" element={<h1 className="font-display text-3xl">Orders</h1>} />
+        <Route path="orders" element={<h1 className="font-display text-3xl">Or ders</h1>} />
        <Route path="customers" element={<AdminCustomers />} />
       </Route>
 

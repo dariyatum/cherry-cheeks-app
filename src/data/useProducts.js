@@ -10,43 +10,37 @@ export function useProducts() {
   useEffect(() => {
     async function getProducts() {
       try {
-        // Get products
+        // Get products and categories
         const productResponse = await fetch("/student-data/products.json");
+        const productsData = await productResponse.json();
 
-        const productData = await productResponse.json();
-
-        // Get categories
         const categoryResponse = await fetch("/student-data/categories.json");
+        const categoriesData = await categoryResponse.json();
 
-        const categoryData = await categoryResponse.json();
-
-        // Create a new product list
+        // Make a new list of products
         const newProducts = [];
 
-        for (let i = 0; i < productData.length; i++) {
-          const product = productData[i];
-
-          // Skip inactive products
+        for (const product of productsData) {
+          // Skip products that are inactive
           if (product.active === false) {
             continue;
           }
 
-          // Find the product category
+          // Find the category name
           let categoryName = "";
 
-          for (let j = 0; j < categoryData.length; j++) {
-            if (categoryData[j].id == product.categoryId) {
-              categoryName =
-                categoryData[j].name || categoryData[j].title || "";
+          for (const category of categoriesData) {
+            if (category.id == product.categoryId) {
+              categoryName = category.name || category.title || "";
               break;
             }
           }
 
-          // Choose product image
-          let image = product.image || bloomEssence;
+          // Get the product image
+          const image = product.image || bloomEssence;
 
-          // Create product information
-          const newProduct = {
+          // Create the product
+          newProducts.push({
             id: Number(product.id),
             name: product.name,
             brand: product.brand,
@@ -60,24 +54,13 @@ export function useProducts() {
             description:
               product.description ||
               product.name + " by " + product.brand + ".",
-          };
-
-          // Show low stock message
-          if (
-            !newProduct.badge &&
-            newProduct.stockQuantity > 0 &&
-            newProduct.stockQuantity <= 10
-          ) {
-            newProduct.badge = "Low stock";
-          }
-
-          newProducts.push(newProduct);
+          });
         }
 
-        // Save data
+        // Save products and categories
         setProducts(newProducts);
-        setCategories(categoryData);
-      } catch (err) {
+        setCategories(categoriesData);
+      } catch (error) {
         setError("Failed to load products.");
       } finally {
         setLoading(false);
@@ -87,10 +70,5 @@ export function useProducts() {
     getProducts();
   }, []);
 
-  return {
-    products,
-    categories,
-    loading,
-    error,
-  };
+  return { products, categories, loading, error };
 }

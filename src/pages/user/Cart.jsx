@@ -2,19 +2,19 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import OrderSummary from "../../components/OrderSummary";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext"; // CHANGED
 import { useProducts } from "../../data/useProducts";
 
 // ---------- 1. CSS (internal) ----------
 const styles = `
   .cart-page {
     min-height: 100vh;
-    padding: 40px 0 80px;          /* no side padding here, the container controls it */
+    padding: 40px 0 80px;
     background: #faf6f1;
     font-family: Arial, sans-serif;
     color: #3d3530;
   }
 
-  /* Same box as the header: max-w-[90%] mx-auto px-5 md:px-8 */
   .cart-container {
     box-sizing: border-box;
     width: 100%;
@@ -28,7 +28,6 @@ const styles = `
     }
   }
 
-  /* ----- Top: breadcrumb, title, subtitle ----- */
   .breadcrumb {
     display: flex;
     align-items: center;
@@ -59,7 +58,6 @@ const styles = `
     color: #8a7a70;
   }
 
-  /* ----- Steps bar ----- */
   .steps {
     display: flex;
     justify-content: space-between;
@@ -106,7 +104,6 @@ const styles = `
     background: #eadfd6;
   }
 
-  /* ----- Two columns: left (main) and right (summary) ----- */
   .cart-layout {
     display: grid;
     grid-template-columns: 1fr 400px;
@@ -120,7 +117,6 @@ const styles = `
     gap: 24px;
   }
 
-  /* ----- Reusable white card ----- */
   .card {
     padding: 28px;
     background: #fffdfa;
@@ -152,14 +148,12 @@ const styles = `
     border: none;
     padding: 0;
   }
-  /* A link that has an icon next to the text */
   .link-icon {
     display: inline-flex;
     align-items: center;
     gap: 8px;
   }
 
-  /* ----- Your bag table ----- */
   .bag-head,
   .bag-row {
     display: grid;
@@ -217,7 +211,6 @@ const styles = `
     color: #8a7a70;
   }
 
-  /* Quantity box:  [ - 1 + ] */
   .qty-box {
     display:flex;
     align-items: center;
@@ -239,7 +232,6 @@ const styles = `
     padding: 0 4px;
   }
 
-  /* ----- Gift note checkbox ----- */
   .checkbox-row {
     display: flex;
     align-items: center;
@@ -258,7 +250,6 @@ const styles = `
     border-top: 1px solid #eadfd6;
   }
 
-  /* ----- Email form ----- */
   .about-text {
     margin: 0 0 24px;
     font-size: 14px;
@@ -294,7 +285,6 @@ const styles = `
     margin-top: 20px;
   }
 
-  /* ----- Bottom row: continue shopping + returns ----- */
   .bottom-row {
     display: flex;
     justify-content: space-between;
@@ -313,7 +303,6 @@ const styles = `
     flex-shrink: 0;
   }
 
-  /* ----- Help box (right column) ----- */
   .help-box {
     padding: 24px;
     background: #f5ede6;
@@ -331,7 +320,6 @@ const styles = `
     color: #8a7a70;
   }
 
-  /* ----- Promo code box (right column) ----- */
   .promo-row {
     display: flex;
     gap: 12px;
@@ -357,14 +345,12 @@ const styles = `
     color: #8a7a70;
   }
 
-  /* ----- Empty bag message ----- */
   .empty-bag {
     padding: 40px 0;
     text-align: center;
     color: #8a7a70;
   }
 
-  /* ----- Tablet and phone ----- */
   @media (max-width: 900px) {
     .cart-layout {
       grid-template-columns: 1fr;
@@ -396,8 +382,6 @@ const styles = `
 `;
 
 // ---------- 2. Page data ----------
-// Products come from the shared cart (see context/CartContext.jsx).
-
 const steps = ["Your bag", "Billing & shipping", "Payment", "Order review", "Confirmation"];
 
 // Helper: 48 becomes "$48.00"
@@ -409,7 +393,15 @@ function showMoney(number) {
 function Cart() {
   const navigate = useNavigate();
 
-   const { items: products, setItems: setProducts, loading, error } = useCart();
+  // CHANGED: also get removeItem, and the logged-in user
+  const {
+    items: products,
+    setItems: setProducts,
+    removeItem,
+    loading,
+    error,
+  } = useCart();
+  const { user } = useAuth();
 
   // All products of the shop (these have the pictures)
   const { products: catalog } = useProducts();
@@ -422,7 +414,7 @@ function Cart() {
 
   // Things the page remembers (state)
   const [giftNote, setGiftNote] = useState(false);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(user?.email || ""); // CHANGED
   const [emailError, setEmailError] = useState("");
   const [news, setNews] = useState(false);
   const [promoCode, setPromoCode] = useState("");
@@ -438,16 +430,17 @@ function Cart() {
   function changeQty(id, amount) {
     const newList = products.map((p) => {
       if (p.id === id) {
-        return { ...p, qty: Math.min(p.stock, Math.max(1, p.qty + amount)) };
+        const max = p.stock ?? 99;
+        return { ...p, qty: Math.min(max, Math.max(1, p.qty + amount)) };
       }
       return p;
     });
     setProducts(newList);
   }
 
-  // Remove one product from the bag
+  // CHANGED: remove one product from the bag
   function removeProduct(id) {
-    setProducts(products.filter((p) => p.id !== id));
+    removeItem(id);
   }
 
   // Apply promo code (demo only: it just shows a message)
@@ -469,8 +462,7 @@ function Cart() {
       return;
     }
     setEmailError("");
-    // Send the items to the next page
-       navigate("/billingshipping", { state: { items: cartItems, email } });
+    navigate("/billingshipping", { state: { items: cartItems, email } });
   }
 
   return (
@@ -482,7 +474,6 @@ function Cart() {
           {/* ----- Top ----- */}
           <div className="breadcrumb">
             <Link to="/">Home</Link>
-            {/* Chevron icon */}
             <svg
               width="12"
               height="12"
@@ -544,7 +535,7 @@ function Cart() {
                       <span>TOTAL</span>
                     </div>
 
-                      {cartItems.map((p) => (
+                    {cartItems.map((p) => (
                       <div className="bag-row" key={p.id}>
                         {/* Picture + name */}
                         <div className="bag-product">
@@ -610,13 +601,17 @@ function Cart() {
               <section className="card about-card">
                 <div className="card-header">
                   <h2 className="card-title">A little about you</h2>
-                  <Link className="link" to="/login">
-                    Already have an account? Sign in
-                  </Link>
+                  {/* CHANGED: only show the sign-in link when logged out */}
+                  {!user && (
+                    <Link className="link" to="/login">
+                      Already have an account? Sign in
+                    </Link>
+                  )}
                 </div>
 
+                {/* CHANGED: text no longer says "guest" */}
                 <p className="about-text">
-                  Continue as a guest. We’ll send your receipt and delivery updates here.
+                  We'll send your receipt and delivery updates to this email.
                 </p>
 
                 <label className="field-label" htmlFor="email">
@@ -645,7 +640,6 @@ function Cart() {
               {/* Bottom row */}
               <div className="bottom-row">
                 <Link className="link link-icon" to="/products">
-                  {/* Left arrow icon */}
                   <svg
                     width="14"
                     height="14"
@@ -664,7 +658,6 @@ function Cart() {
                 </Link>
 
                 <span className="returns-note">
-                  {/* Package icon */}
                   <svg
                     width="16"
                     height="16"
@@ -688,8 +681,7 @@ function Cart() {
 
             {/* ===== RIGHT COLUMN ===== */}
             <div className="right-column">
-              {/* Reused component: we send data with props */}
-                <OrderSummary
+              <OrderSummary
                 items={cartItems}
                 deliveryFee={0}
                 buttonLabel="Continue to billing & shipping"

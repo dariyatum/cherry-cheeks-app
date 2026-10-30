@@ -15,20 +15,19 @@ const files = {
   invoices: "/student-data/invoices.json",
 };
 
-// Change these names to match invoices.json and accounts.json
 const f = {
   invoiceId: "id",
-  invoiceCustomer: "accountId",
+  invoiceCustomer: "customerId",
   invoiceTotal: "total",
-  invoiceDate: "date",
+  invoiceDate: "createdAt",
   invoiceStatus: "status",
   accountId: "id",
-  accountName: "fullName",
-  accountRole: "role",
+  accountName: "fullName", // still a guess: check accounts.json
+  accountRole: "role",     // still a guess: check accounts.json
 };
 
-// Set to null if accounts.json has no role field
-const CUSTOMER_ROLE = null;
+// Compared in lowercase. Set to null to count every account.
+const CUSTOMER_ROLE = "customer";
 const LOW_STOCK_LIMIT = 20;
 
 const money = new Intl.NumberFormat("en-US", {
@@ -37,11 +36,10 @@ const money = new Intl.NumberFormat("en-US", {
 });
 
 const statusStyles = {
-  paid: "bg-blue-100 text-blue-800",
-  shipped: "bg-green-100 text-green-800",
-  completed: "bg-green-100 text-green-800",
+  paid: "bg-green-100 text-green-800",
   pending: "bg-amber-100 text-amber-800",
   cancelled: "bg-red-100 text-red-800",
+  refunded: "bg-blue-100 text-blue-800",
 };
 
 const card = "rounded-2xl border border-cherry/10 bg-white p-6";
@@ -50,7 +48,8 @@ async function getJson(url) {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Could not load ${url}`);
   const data = await response.json();
-  return Array.isArray(data) ? data : [];
+  if (Array.isArray(data)) return data;
+  return Object.values(data).find(Array.isArray) ?? [];
 }
 
 function AdminOverview() {
@@ -80,21 +79,32 @@ function AdminOverview() {
     const { products, accounts, invoices } = data;
 
     const activeProducts = products.filter((p) => p.active !== false);
+
     const customers = CUSTOMER_ROLE
-      ? accounts.filter((a) => a[f.accountRole] === CUSTOMER_ROLE)
+      ? accounts.filter(
+          (a) => String(a[f.accountRole]).toLowerCase() === CUSTOMER_ROLE
+        )
       : accounts;
 
-    const revenue = invoices.reduce(
+    // Only PAID invoices count as sales
+    const paid = invoices.filter(
+      (i) => String(i[f.invoiceStatus]).toUpperCase() === "PAID"
+    );
+
+    const revenue = paid.reduce(
       (sum, i) => sum + Number(i[f.invoiceTotal] || 0),
       0
     );
 
     // Sales per day, last 7 days of data
-    const dated = invoices
-      .map((i) => ({ date: new Date(i[f.invoiceDate]), total: Number(i[f.invoiceTotal] || 0) }))
+    const dated = paid
+      .map((i) => ({
+        date: new Date(i[f.invoiceDate]),
+        total: Number(i[f.invoiceTotal] || 0),
+      }))
       .filter((i) => !Number.isNaN(i.date.getTime()));
 
-    let week = [];
+    const week = [];
     if (dated.length > 0) {
       const end = new Date(Math.max(...dated.map((i) => i.date.getTime())));
       for (let k = 6; k >= 0; k--) {
@@ -121,16 +131,22 @@ function AdminOverview() {
     const recent = [...invoices]
       .sort((a, b) => new Date(b[f.invoiceDate]) - new Date(a[f.invoiceDate]))
       .slice(0, 5)
-      .map((i) => ({
-        id: i[f.invoiceId],
-        customer: names.get(String(i[f.invoiceCustomer])) ?? "Guest",
-        total: Number(i[f.invoiceTotal] || 0),
-        status: i[f.invoiceStatus],
-      }));
+      .map((i) => {
+        const id = i[f.invoiceCustomer];
+        return {
+          id: i[f.invoiceId],
+          customer:
+            id == null
+              ? "Walk-in customer"
+              : names.get(String(id)) ?? `Customer #${id}`,
+          total: Number(i[f.invoiceTotal] || 0),
+          status: i[f.invoiceStatus],
+        };
+      });
 
     return {
       stats: [
-        { label: "Revenue", value: money.format(revenue), note: "From all invoices", icon: DollarSign },
+        { label: "Revenue", value: money.format(revenue), note: "Paid invoices", icon: DollarSign },
         { label: "Orders", value: invoices.length, note: "Total invoices", icon: ReceiptText },
         { label: "Customers", value: customers.length, note: "Registered accounts", icon: Users },
         { label: "Products", value: activeProducts.length, note: "Active in catalog", icon: Package },
@@ -156,7 +172,6 @@ function AdminOverview() {
         </p>
       </div>
 
-      {/* Stat cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {view.stats.map(({ label, value, note, icon: Icon }) => (
           <div key={label} className={card}>
@@ -171,13 +186,12 @@ function AdminOverview() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[2fr_1fr]">
-        {/* Sales chart */}
         <section className={card} aria-label="Sales, last 7 days">
           <h2 className="font-display text-xl text-gray-900">
             Sales, last 7 days
           </h2>
           {view.week.length === 0 ? (
-            <p className="mt-6 text-sm text-gray-500">No dated invoices yet.</p>
+            <p className="mt-6 text-sm text-gray-500">No paid invoices yet.</p>
           ) : (
             <div className="mt-6 flex h-48 items-end gap-3">
               {view.week.map((d, i) => (
@@ -197,7 +211,6 @@ function AdminOverview() {
           )}
         </section>
 
-        {/* Low stock */}
         <section className={card} aria-label="Low stock">
           <h2 className="flex items-center gap-2 font-display text-xl text-gray-900">
             <AlertTriangle size={18} className="text-amber-600" aria-hidden="true" />
@@ -226,7 +239,6 @@ function AdminOverview() {
         </section>
       </div>
 
-      {/* Recent orders */}
       <section className={card} aria-label="Recent orders">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-xl text-gray-900">Recent orders</h2>

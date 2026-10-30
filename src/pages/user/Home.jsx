@@ -66,7 +66,7 @@ function Home() {
     <div className="bg-cream">
       {/* Hero: full width */}
 {/* Hero: full width */}
-<section className="relative w-full bg-[#F2D9DA] overflow-hidden  pt-0 pb-16" >
+<section className="relative w-full  overflow-hidden  pt-0 pb-16" >
   <div className="grid lg:min-h-[calc(100vh-5rem)] lg:grid-cols-[1.1fr_1fr] items-center">
     
     {/* Left Column: Text & CTAs */}
@@ -199,7 +199,7 @@ function Home() {
       </section>
 
       {/* Our story */}
-      <section className="mt-6 bg-[#E9DED0] py-16 lg:py-24">
+      <section className="mt-6  py-16 lg:py-24">
         <div className={`${container} grid items-center gap-10 lg:grid-cols-2`}>
           <img
             src={founder}
@@ -254,7 +254,7 @@ function Home() {
       </section>
 
       {/* Reviews */}
-      <section className="w-full bg-[#E9DED0] pt-20">
+      <section className="w-full  pt-20">
         <div className={`${container} pb-16 lg:pb-24`}>
           <div className="mb-8 text-center">
             <p className={`${eyebrow} mb-2`}>Notes from our makeup community</p>

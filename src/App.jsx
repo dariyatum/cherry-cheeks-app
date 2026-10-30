@@ -12,6 +12,7 @@ import OrderReview from "./pages/OrderReview";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import About from "./pages/About";
 import Profile from "./pages/Profile";
+import Register from "./pages/Register";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
       </Route>
 
       {/* Pages WITHOUT navbar */}
+      <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
     </Routes>
   );

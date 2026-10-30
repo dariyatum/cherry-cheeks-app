@@ -219,13 +219,8 @@ export default function ProductDetail() {
                 <button onClick={() => setQty(qty + 1)}>+</button>
               </div>
 
-              <AddToCartButton
-                product={product}
-                qty={qty}
-                goToCart
-                className="add"
-              >
-                Add to cart · ${fmt(product.price * qty)} →
+              <AddToCartButton product={product} qty={qty} className="add">
+                  Add to cart · ${fmt(product.price * qty)} →
               </AddToCartButton>
             </div>
 

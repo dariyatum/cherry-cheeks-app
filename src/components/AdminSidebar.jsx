@@ -7,6 +7,7 @@ import {
   LogOut,
   X,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 import avatar from "../assets/images/admin-avatar.jpg";
 
 const items = [
@@ -27,6 +28,17 @@ const linkClass = ({ isActive }) =>
 
 function AdminSidebar({ open, onClose }) {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const name = user?.fullName || "Admin";
+  const role = user?.role
+    ? user.role.charAt(0) + user.role.slice(1).toLowerCase()
+    : "";
+
+  const handleLogout = () => {
+    logout(); // clears the saved session AND sets user to null
+    navigate("/login", { replace: true });
+  };
 
   return (
     <>
@@ -80,15 +92,15 @@ function AdminSidebar({ open, onClose }) {
         <div className="flex items-center gap-3 border-t border-white/15 pt-5">
           <img
             src={avatar}
-            alt="Kim MinJuu"
+            alt={name}
             className="h-10 w-10 rounded-full object-cover"
           />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-white">Kim MinJuu</p>
-            <p className="text-xs text-white/60">Owner</p>
+            <p className="truncate text-sm font-medium text-white">{name}</p>
+            <p className="text-xs text-white/60">{role}</p>
           </div>
           <button
-            onClick={() => navigate("/login")}
+            onClick={handleLogout}
             aria-label="Log out"
             className="rounded-full p-2 text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
           >

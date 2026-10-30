@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function InputField({ label, name, type = "text", placeholder, value, onChange }) {
   return (
@@ -27,6 +27,18 @@ function InputField({ label, name, type = "text", placeholder, value, onChange }
 
 export default function RegisterForm() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { register } = useAuth();
+
+  // Page the user was on before opening register (string or location object)
+  const rawFrom = location.state?.from;
+  let from =
+    typeof rawFrom === "string"
+      ? rawFrom
+      : rawFrom?.pathname
+      ? rawFrom.pathname + (rawFrom.search || "")
+      : "/";
+  if (from === "/login" || from === "/register") from = "/";
 
   const [form, setForm] = useState({
     name: "",
@@ -58,12 +70,13 @@ export default function RegisterForm() {
 
     try {
       setLoading(true);
-      await registerUser({
-        name: form.name,
+        await register({
+        fullName: form.name,
         email: form.email,
         password: form.password,
-      });
-      navigate("/login");
+      }); 
+      // New accounts are logged in automatically, so go back to where they were
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -145,7 +158,11 @@ export default function RegisterForm() {
 
       <p className="mt-6 text-center text-xs text-gray-500">
         Already have an account?{" "}
-        <Link to="/login" className="text-[#8b3a55] underline">
+        <Link
+          to="/login"
+          state={{ from }}
+          className="text-[#8b3a55] underline"
+        >
           Sign in
         </Link>
       </p>

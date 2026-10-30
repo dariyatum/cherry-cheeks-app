@@ -15,27 +15,38 @@ export default function LoginCard() {
       : rawFrom?.pathname
       ? rawFrom.pathname + (rawFrom.search || "")
       : "/";
-  if (from === "/login") from = "/";
+  if (["/login", "/register", "/unauthorized"].includes(from)) from = "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Checks the email/password against users.js and saves the login
-    const user = login(email, password, remember);
+    try {
+      setLoading(true);
+      const user = await login(email, password, remember); // wait for the result
 
-    if (!user) {
-      setError("Wrong email or password");
-      return;
+      if (!user) {
+        setError("Wrong email or password");
+        return;
+      }
+
+      // Staff go to their area; customers never get sent to staff pages
+      const routes = { ADMIN: "/admin", CASHIER: "/cashier" };
+      const staffOnly = from.startsWith("/admin") || from.startsWith("/cashier");
+      const target = routes[user.role] || (staffOnly ? "/" : from);
+
+      navigate(target, { replace: true });
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
-
-    // Admins go to the admin area; others go back to where they were
-    navigate(user.role === "admin" ? "/admin" : from, { replace: true });
   };
 
   const input =
@@ -112,9 +123,10 @@ export default function LoginCard() {
 
         <button
           type="submit"
-          className="h-[50px] rounded-xl bg-[#8f3f56] text-base font-semibold text-white shadow-[0_8px_20px_rgba(143,63,86,0.25)] hover:bg-[#7a3448]"
+          disabled={loading}
+          className="h-[50px] rounded-xl bg-[#8f3f56] text-base font-semibold text-white shadow-[0_8px_20px_rgba(143,63,86,0.25)] hover:bg-[#7a3448] disabled:opacity-60"
         >
-          Sign in
+          {loading ? "Signing in..." : "Sign in"}
         </button>
 
         <div className="my-5 flex items-center gap-3 text-[13px] text-gray-500 before:h-px before:flex-1 before:bg-gray-200 before:content-[''] after:h-px after:flex-1 after:bg-gray-200 after:content-['']">

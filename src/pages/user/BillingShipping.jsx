@@ -970,7 +970,10 @@ function BillingShipping({ onNext = () => {} }) {
   const items = location.state?.items || loadedItems;
 
   // ----- State (what the page remembers) -----
-  const [form, handleFormChange] = useFormFields(EMPTY_SHIPPING);
+  const [form, handleFormChange] = useFormFields({
+    ...EMPTY_SHIPPING,
+    email: location.state?.email || "",
+  });
   const [billing, handleBillingChange] = useFormFields(EMPTY_BILLING);
 
   const [saveAddress, setSaveAddress] = useState(false);
@@ -1023,8 +1026,9 @@ function BillingShipping({ onNext = () => {} }) {
     }
 
     // 4. Collect everything for the next page
-    const data = {
+      const data = {
       items,
+      email: form.email.trim(),
       form: { ...form },
       billing: sameAddress ? { ...form } : { ...billing },
       sameAddress,
@@ -1091,9 +1095,10 @@ function BillingShipping({ onNext = () => {} }) {
 
           {/* RIGHT COLUMN: summary and help */}
           <aside className="sidebar">
-            <OrderSummary
+              <OrderSummary
               items={items}
               deliveryFee={delivery.price}
+              deliveryLabel={delivery.title}
               buttonLabel="Continue to payment"
               onContinue={handleContinue}
             />

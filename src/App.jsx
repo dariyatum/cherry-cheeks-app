@@ -18,6 +18,7 @@ import Cart from "./pages/user/Cart";
 import BillingShipping from "./pages/user/BillingShipping";
 import About from "./pages/user/About";
 import Profile from "./pages/user/Profile";
+import Register from "./pages/user/Register";
 
 import AdminLayout from "./components/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
@@ -35,7 +36,11 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
         <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route path="/contact" element={
+          <ProtectedRoute>
+            <Cart />
+          </ProtectedRoute>
+          } />
         <Route path="/cart" element={<Cart />} />
         <Route path="/billingshipping" element={<BillingShipping />} />
         <Route path="/payment" element={<Payment />} />
@@ -55,6 +60,7 @@ function App() {
       </Route>
 
       {/* Pages WITHOUT navbar */}
+      <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
@@ -70,13 +76,10 @@ function App() {
         <Route index element={<AdminOverview />} />
         <Route path="products" element={<AdminProducts />} />
         <Route path="products/:category" element={<AdminProducts />} />
-        <Route
-          path="orders"
-          element={<h1 className="font-display text-3xl">Orders</h1>}
-        />
         <Route path="products" element={<h1 className="font-display text-3xl">Products</h1>} />
         <Route path="orders" element={<AdminOrder />} />
-        <Route path="orders" element={<h1 className="font-display text-3xl">Or ders</h1>} />
+        <Route path="orders" element={<h1 className="font-display text-3xl">Orders</h1>} />
+       
        <Route path="customers" element={<AdminCustomers />} />
       </Route>
 

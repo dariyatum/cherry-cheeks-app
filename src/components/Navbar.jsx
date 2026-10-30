@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { Search, ShoppingBag, CircleUser, Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { useCart } from "../context/CartContext";
+import { useCart } from "../context/CartContext"; // CHANGED
 
 const links = [
   { name: "Home", href: "/" },
@@ -15,17 +15,6 @@ const iconBtn =
   "rounded-full p-2 text-gray-900 transition-colors hover:bg-cherry/10 hover:text-cherry " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cherry";
 
-function CherryLogo() {
-  return (
-    <svg viewBox="0 0 48 48" className="h-10 w-10 fill-cherry" aria-hidden="true">
-      <path d="M26 4c2 6 6 10 12 12-1 2-2 3-4 3-4-1-7-4-9-8z" />
-      <path d="M24 12c-3 4-5 8-6 12l2 1c1-4 3-8 5-11z" />
-      <circle cx="16" cy="33" r="11" />
-      <circle cx="34" cy="31" r="9" />
-    </svg>
-  );
-}
-
 function Navbar() {
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -33,8 +22,8 @@ function Navbar() {
   const searchRef = useRef(null);
   const location = useLocation(); // used for the login redirect
   const { user } = useAuth();
+  const { count: cartCount } = useCart(); // CHANGED: real count, old "cartCount = 0" removed
   const { pathname } = location;
-  const { count: cartCount } = useCart();
 
   // Close menus when the page changes
   useEffect(() => {
@@ -101,16 +90,15 @@ function Navbar() {
         }`}
       >
         {/* Logo */}
-
-           <Link
-              to="/"
-              className="mb-4 mt-1 inline-flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cherry"
-            >
-              <img src="/logo1.png" alt="" className="h-15 w-auto" />
-              <span className="text-xl font-medium uppercase tracking-wider text-gray-900 sm:text-2xl pt-4">
-                Cherry Cheeks
-              </span>
-            </Link>
+        <Link
+          to="/"
+          className="mb-4 mt-1 inline-flex items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cherry"
+        >
+          <img src="/logo1.png" alt="" className="h-15 w-auto" />
+          <span className="text-xl font-medium uppercase tracking-wider text-gray-900 sm:text-2xl pt-4">
+            Cherry Cheeks
+          </span>
+        </Link>
 
         {/* Desktop links (center) */}
         <ul className="hidden items-center justify-center gap-8 md:flex">

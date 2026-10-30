@@ -14,9 +14,9 @@ const from = location.state?.from || "/";
       <div className="flex flex-col bg-[#fcfaf6] px-6 py-8 sm:px-12 lg:px-[110px]">
         {/* Top bar */}
         <div className="flex items-center justify-between text-xs">
-          <Link to={from} className="flex text-sm" aria-label="Go back">
-          <ArrowLeft size={24} />
-        </Link>
+          <Link to="/" className="flex text-sm" aria-label="Go back">
+            <ArrowLeft size={24} />
+          </Link>
           <span className="font-sans uppercase tracking-widest text-gray-500">
             Join us
           </span>

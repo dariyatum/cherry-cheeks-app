@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useProducts } from "../../data/useProducts";
-import { useCart } from "../../context/CartContext";
+import AddToCartButton from "../../components/AddToCartButton";
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Inter:wght@400;500;600;700&display=swap');
@@ -101,8 +101,6 @@ export default function ProductDetail() {
   const { products, loading, error } = useProducts();
 
   const { id } = useParams();
-  const navigate = useNavigate();
-  const { addItem } = useCart();
 
   const [imageIndex, setImageIndex] = useState(0);
   const [shade, setShade] = useState(null);
@@ -136,25 +134,6 @@ export default function ProductDetail() {
 
   function toggle(key) {
     setOpen({ ...open, [key]: !open[key] });
-  }
-
-  // function addToCart() {
-  //   navigate("/cart", {
-  //     state: {
-  //       product: {
-  //         id: product.id,
-  //         name: product.name,
-  //         price: product.price,
-  //         image: product.image,
-  //       },
-  //       shade: selectedShade,
-  //       qty,
-  //     },
-  //   });
-  // }
-    function addToCart() {
-    addItem(product, qty);
-    navigate("/cart");
   }
 
   return (
@@ -239,9 +218,10 @@ export default function ProductDetail() {
                 <span>{qty}</span>
                 <button onClick={() => setQty(qty + 1)}>+</button>
               </div>
-              <button className="add" onClick={addToCart}>
-                Add to cart · ${fmt(product.price * qty)} →
-              </button>
+
+              <AddToCartButton product={product} qty={qty} className="add">
+                  Add to cart · ${fmt(product.price * qty)} →
+              </AddToCartButton>
             </div>
 
             <div className="perks">

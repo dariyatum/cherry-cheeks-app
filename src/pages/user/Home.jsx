@@ -75,7 +75,7 @@ function Home() {
         Radiant skin. Real confidence.
       </p>
       
-      <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl tracking-tight text-[#2D2826] leading-[1.15]">
+      <h1 className="text-4xl sm:text-5xl lg:text-6xl italic font-normal tracking-tight text-[#2D2826] leading-[1.15]">
         Reveal your quiet radiance. <br />
         <span className="italic font-normal">The Surface</span>
       </h1>

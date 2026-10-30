@@ -21,11 +21,12 @@ import Profile from "./pages/user/Profile";
 
 import AdminLayout from "./components/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
+import AdminProducts from "./pages/admin/AdminProducts";
 function App() {
   return (
     <Routes>
       {/* Admin layout*/}
-      
+
       {/* Pages WITH navbar */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
@@ -43,7 +44,9 @@ function App() {
         <Route
           path="/profile"
           element={
-            <ProtectedRoute roles={["user", "admin"]}><Profile /></ProtectedRoute>
+            <ProtectedRoute roles={["user", "admin"]}>
+              <Profile />
+            </ProtectedRoute>
           }
         />
       </Route>
@@ -62,9 +65,16 @@ function App() {
         }
       >
         <Route index element={<AdminOverview />} />
-        <Route path="products" element={<h1 className="font-display text-3xl">Products</h1>} />
-        <Route path="orders" element={<h1 className="font-display text-3xl">Orders</h1>} />
-        <Route path="customers" element={<h1 className="font-display text-3xl">Customers</h1>} />
+        <Route path="products" element={<AdminProducts />} />
+        <Route path="products/:category" element={<AdminProducts />} />
+        <Route
+          path="orders"
+          element={<h1 className="font-display text-3xl">Orders</h1>}
+        />
+        <Route
+          path="customers"
+          element={<h1 className="font-display text-3xl">Customers</h1>}
+        />
       </Route>
 
       {/* Unknown URL → home */}

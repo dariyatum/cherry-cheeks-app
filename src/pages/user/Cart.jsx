@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import OrderSummary from "../components/OrderSummary";
+import OrderSummary from "../../components/OrderSummary";
+import useCartItems from "../../hooks/useCartItems";
 
 // ---------- 1. CSS (internal) ----------
 const styles = `
@@ -390,14 +391,8 @@ const styles = `
   }
 `;
 
-// ---------- 2. Product data ----------
-// Change these to change what shows in the page.
-// "tagline" is the small text shown in "Your bag" only.
-const startProducts = [
-  { id: 1, name: "Botanical Dew Serum", tagline: "Hydrate & illuminate", detail: "30 ml", qty: 1, price: 48, color: "#c9955c" },
-  { id: 2, name: "Cloud Soft Moisturiser", tagline: "Nourish & restore", detail: "50 ml", qty: 1, price: 42, color: "#e3cdb0" },
-  { id: 3, name: "Petal Lip Tint", tagline: "", detail: "Rosewood · 4 g", qty: 2, price: 24, color: "#a8576d" },
-];
+// ---------- 2. Page data ----------
+// Products now come from the JSON files (see hooks/useCartItems.js).
 
 const steps = ["Your bag", "Billing & shipping", "Payment", "Order review", "Confirmation"];
 
@@ -410,8 +405,11 @@ function showMoney(number) {
 function Cart() {
   const navigate = useNavigate();
 
+  // Load the cart from the JSON files (customer 101 = cart 1)
+  const { items: loadedItems, loading, error } = useCartItems(101);
+
   // Things the page remembers (state)
-  const [products, setProducts] = useState(startProducts);
+  const [products, setProducts] = useState([]);
   const [giftNote, setGiftNote] = useState(false);
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -419,17 +417,22 @@ function Cart() {
   const [promoCode, setPromoCode] = useState("");
   const [promoMessage, setPromoMessage] = useState("One code per order. No code applied.");
 
+  // Copy the loaded items into state so + / - / Remove still work
+  useEffect(() => {
+    setProducts(loadedItems);
+  }, [loadedItems]);
+
   // Count items for the "Your bag" header
   let itemCount = 0;
   products.forEach((p) => {
     itemCount = itemCount + p.qty;
   });
 
-  // Change quantity: amount is +1 or -1 (never below 1)
+  // Change quantity: amount is +1 or -1 (never below 1, never above the stock)
   function changeQty(id, amount) {
     const newList = products.map((p) => {
       if (p.id === id) {
-        return { ...p, qty: Math.max(1, p.qty + amount) };
+        return { ...p, qty: Math.min(p.stock, Math.max(1, p.qty + amount)) };
       }
       return p;
     });
@@ -460,7 +463,8 @@ function Cart() {
       return;
     }
     setEmailError("");
-    navigate("/billingshipping");
+    // Send the items to the next page
+    navigate("/billingshipping", { state: { items: products } });
   }
 
   return (
@@ -519,7 +523,11 @@ function Cart() {
                   </span>
                 </div>
 
-                {products.length === 0 ? (
+                {loading ? (
+                  <p className="empty-bag">Loading your bag…</p>
+                ) : error ? (
+                  <p className="empty-bag">Could not load cart: {error}</p>
+                ) : products.length === 0 ? (
                   <p className="empty-bag">Your bag is empty.</p>
                 ) : (
                   <>

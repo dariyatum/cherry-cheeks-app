@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import Button from "../components/Button";
-import ProductCard from "../components/ProductCard";
+import Button from "../../components/Button";
+import ProductCard from "../../components/ProductCard";
 
-import hero from "../assets/images/hero.jpg";
-import complexion from "../assets/images/complexion.jpg";
-import eyes from "../assets/images/eyes.jpg";
-import lips from "../assets/images/lips.jpg";
-import founder from "../assets/images/founder.jpg";
-import silkVeil from "../assets/images/silk-veil-cushion.jpg";
-import velvetPalette from "../assets/images/velvet-shadow-palette.jpg";
+import hero from "../../assets/images/hero.jpg";
+import complexion from "../../assets/images/complexion.jpg";
+import eyes from "../../assets/images/eyes.jpg";
+import lips from "../../assets/images/lips.jpg";
+import founder from "../../assets/images/founder.jpg";
+import silkVeil from "../../assets/images/silk-veil-cushion.jpg";
+import velvetPalette from "../../assets/images/velvet-shadow-palette.jpg";
 
 const categories = [
   {

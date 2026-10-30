@@ -7,21 +7,35 @@ export default function LoginCard() {
   const location = useLocation();
   const { login } = useAuth();
 
-  // Page the user was on before opening login (falls back to home)
-  const from = location.state?.from || "/";
+  // Page the user was on before opening login (string or location object)
+  const rawFrom = location.state?.from;
+  let from =
+    typeof rawFrom === "string"
+      ? rawFrom
+      : rawFrom?.pathname
+      ? rawFrom.pathname + (rawFrom.search || "")
+      : "/";
+  if (from === "/login") from = "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(true);
+  const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError("");
 
-    // TODO: replace with your real API call, then use the user it returns
-    login({ name: email.split("@")[0], email });
+    // Checks the email/password against users.js and saves the login
+    const user = login(email, password, remember);
 
-    // Go back to where the user was; replace removes /login from history
-    navigate(from, { replace: true });
+    if (!user) {
+      setError("Wrong email or password");
+      return;
+    }
+
+    // Admins go to the admin area; others go back to where they were
+    navigate(user.role === "admin" ? "/admin" : from, { replace: true });
   };
 
   const input =
@@ -91,6 +105,10 @@ export default function LoginCard() {
             Need help?
           </Link>
         </div>
+
+        {error && (
+          <p className="mb-3 text-center text-sm text-red-600">{error}</p>
+        )}
 
         <button
           type="submit"

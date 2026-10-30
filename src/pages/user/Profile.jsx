@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
-
+   import { useAuth } from "../../context/AuthContext";
 // ---------- Sample data (replace with real data later) ----------
-const profile = {
-  name: "Jane Doe",
-  email: "jane.doe@example.com",
+const profileExtras = {
   phone: "+1 (555) 000-0000",
   address: {
     line1: "1234 Cherry Lane, Apt 4B",
@@ -86,8 +84,11 @@ function MiniProductCard({ product }) {
 export default function Profile() {
   const [active, setActive] = useState("Profile Overview");
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const profile = { ...profileExtras, name: user.name, email: user.email };
 
   const handleLogout = () => {
+    logout();  
     // TODO: call logout() from AuthContext here when auth is back
     navigate("/");
   };

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { Link, useLocation } from "react-router-dom";
+import { register } from "../auth";
 
 function InputField({ label, name, type = "text", placeholder, value, onChange }) {
   return (
@@ -26,19 +26,18 @@ function InputField({ label, name, type = "text", placeholder, value, onChange }
 }
 
 export default function RegisterForm() {
-  const navigate = useNavigate();
   const location = useLocation();
-  const { register } = useAuth();
 
-  // Page the user was on before opening register (string or location object)
+  // Page the user was on before opening register
   const rawFrom = location.state?.from;
-  let from =
-    typeof rawFrom === "string"
-      ? rawFrom
-      : rawFrom?.pathname
-      ? rawFrom.pathname + (rawFrom.search || "")
-      : "/";
-  if (from === "/login" || from === "/register") from = "/";
+  let from = "/";
+  if (typeof rawFrom === "string") {
+    from = rawFrom;
+  } else if (rawFrom?.pathname) {
+    from = rawFrom.pathname + (rawFrom.search || "");
+  }
+  if (["/login", "/register", "/unauthorized"].includes(from)) from = "/";
+  if (from.startsWith("/admin") || from.startsWith("/cashier")) from = "/";
 
   const [form, setForm] = useState({
     name: "",
@@ -48,46 +47,37 @@ export default function RegisterForm() {
   });
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
-    if (form.password.length < 8) {
-      return setError("Password must be at least 8 characters.");
-    }
-    if (form.password !== form.confirmPassword) {
-      return setError("Passwords do not match.");
-    }
-    if (!agree) {
-      return setError("Please agree to the terms.");
-    }
-
-    try {
-      setLoading(true);
-        await register({
-        fullName: form.name,
-        email: form.email,
-        password: form.password,
-      }); 
-      // New accounts are logged in automatically, so go back to where they were
-      navigate(from, { replace: true });
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    if (form.name.trim() === "") {
+      setError("Please enter your name.");
+    } else if (form.password.length < 8) {
+      setError("Password must be at least 8 characters.");
+    } else if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+    } else if (!agree) {
+      setError("Please agree to the terms.");
+    } else {
+      try {
+        register(form.name, form.email, form.password);
+        window.location.assign(from); // logged in, back to where they were
+      } catch (err) {
+        setError(err.message);
+      }
     }
   };
 
   return (
     <div className="w-full max-w-md rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8b3a55]">
-        Join Rouge Edit
+        Join Cherry Cheeks
       </p>
 
       <h1 className="mt-2 font-[Cormorant_Garamond] text-4xl font-semibold text-gray-900">
@@ -149,20 +139,15 @@ export default function RegisterForm() {
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full rounded-full bg-[#8b3a55] py-3.5 text-sm font-medium text-white transition hover:bg-[#742f46] disabled:opacity-60"
+          className="w-full rounded-full bg-[#8b3a55] py-3.5 text-sm font-medium text-white transition hover:bg-[#742f46]"
         >
-          {loading ? "Creating account..." : "Create account →"}
+          Create account →
         </button>
       </form>
 
       <p className="mt-6 text-center text-xs text-gray-500">
         Already have an account?{" "}
-        <Link
-          to="/login"
-          state={{ from }}
-          className="text-[#8b3a55] underline"
-        >
+        <Link to="/login" state={{ from }} className="text-[#8b3a55] underline">
           Sign in
         </Link>
       </p>

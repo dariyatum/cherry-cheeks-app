@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useAuth } from "./AuthContext";
+import { getUser } from "../auth";
 
 const CartContext = createContext(null);
 
@@ -16,7 +16,7 @@ function readCart(key) {
 }
 
 export function CartProvider({ children }) {
-  const { user } = useAuth();
+  const user = getUser();
   const key = keyFor(user);
 
   const [items, setItems] = useState(() => readCart(key));

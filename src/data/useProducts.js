@@ -1,84 +1,74 @@
 import { useEffect, useState } from "react";
 import bloomEssence from "../assets/images/bloom-essence.png";
-// import cleanser from "../assets/images/gentle-cleanser.png";   // add your photos here
-
-// Photo for each product id. Anything not listed uses the default photo.
-const IMAGES = {
-  // 101: cleanser,
-};
-
-const BASE = "/student-data";
-let cache = null; // shared by all pages, so the files are fetched once
-
-async function getJson(file) {
-  const res = await fetch(`${BASE}/${file}`);
-  if (!res.ok) throw new Error(`${file}: HTTP ${res.status}`);
-  return res.json();
-}
-
-async function load() {
-  const [rawProducts, rawCategories] = await Promise.all([
-    getJson("products.json"),
-    getJson("categories.json"),
-  ]);
-
-  const categoryById = Object.fromEntries(rawCategories.map((c) => [c.id, c]));
-
-  const products = rawProducts
-    .filter((p) => p.active !== false) // hide inactive products
-    .map((p) => {
-      const image = IMAGES[p.id] ?? p.image ?? bloomEssence;
-      const images =
-        Array.isArray(p.images) && p.images.length ? p.images : [image];
-      const stock = Number(p.stockQuantity);
-      const category = categoryById[p.categoryId];
-
-      return {
-        ...p,
-        id: Number(p.id),
-        price: Number(p.price),
-        category: category?.name ?? category?.title ?? "",
-        image: images[0],
-        images,
-        badge: p.badge ?? (stock > 0 && stock <= 10 ? "Low stock" : undefined),
-        tagline: p.tagline ?? p.brand,
-        description: p.description ?? `${p.name} by ${p.brand}.`,
-      };
-    });
-
-  return { products, categories: rawCategories };
-}
 
 export function useProducts() {
-  const [state, setState] = useState(
-    cache
-      ? { ...cache, loading: false, error: null }
-      : { products: [], categories: [], loading: true, error: null },
-  );
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (cache) return;
-    let cancelled = false;
+    async function getProducts() {
+      try {
+        // Get products and categories
+        const productResponse = await fetch("/student-data/products.json");
+        const productsData = await productResponse.json();
 
-    load()
-      .then((data) => {
-        cache = data;
-        if (!cancelled) setState({ ...data, loading: false, error: null });
-      })
-      .catch((err) => {
-        if (!cancelled)
-          setState({
-            products: [],
-            categories: [],
-            loading: false,
-            error: err.message,
+        const categoryResponse = await fetch("/student-data/categories.json");
+        const categoriesData = await categoryResponse.json();
+
+        // Make a new list of products
+        const newProducts = [];
+
+        for (const product of productsData) {
+          // Skip products that are inactive
+          if (product.active === false) {
+            continue;
+          }
+
+          // Find the category name
+          let categoryName = "";
+
+          for (const category of categoriesData) {
+            if (category.id == product.categoryId) {
+              categoryName = category.name || category.title || "";
+              break;
+            }
+          }
+
+          // Get the product image
+          const image = product.image || bloomEssence;
+
+          // Create the product
+          newProducts.push({
+            id: Number(product.id),
+            name: product.name,
+            brand: product.brand,
+            price: Number(product.price),
+            stockQuantity: Number(product.stockQuantity),
+            category: categoryName,
+            image: image,
+            images: product.images || [image],
+            badge: product.badge || "",
+            tagline: product.tagline || product.brand,
+            description:
+              product.description ||
+              product.name + " by " + product.brand + ".",
           });
-      });
+        }
 
-    return () => {
-      cancelled = true;
-    };
+        // Save products and categories
+        setProducts(newProducts);
+        setCategories(categoriesData);
+      } catch (error) {
+        setError("Failed to load products.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    getProducts();
   }, []);
 
-  return state;
+  return { products, categories, loading, error };
 }

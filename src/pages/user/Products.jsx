@@ -171,153 +171,33 @@ function Doodle({ name, className = "" }) {
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500&family=Inter:wght@400;500;600;700&display=swap');
 
-.products { position: relative; overflow-x: clip; background: #faf7f2; color: #2b2420; font-family: 'Inter', sans-serif; text-align: left; }
-.products *, .products *::before, .products *::after { box-sizing: border-box; }
-.products .wrap { max-width: 1296px; margin: 0 auto; padding-left: 24px; padding-right: 24px; }
-
-/* ---------- Doodles + parallax ----------
-   --s  = how fast it moves when you scroll (positive = slower than the page, negative = faster)
-   --px / --py = how far it follows the mouse
-   --r  = rotation, --w = width                                                  */
-.products .dd {
-  position: absolute; z-index: 1; width: var(--w, 80px); pointer-events: none; will-change: transform;
-  transform:
-    translate3d(
-      calc(var(--mx, 0) * var(--px, 0) * 1px),
-      calc(var(--sy, 0) * var(--s, 0) * 1px + var(--my, 0) * var(--py, 0) * 1px),
-      0
-    )
-    rotate(var(--r, 0deg));
-  transition: transform 0.25s ease-out;
-}
-.products .dd svg { display: block; width: 100%; height: auto; overflow: visible; }
-.products .dd.float svg { animation: pr-float 6s ease-in-out infinite; }
-.products .dd.spin svg { animation: pr-spin 40s linear infinite; }
-.products .dd.static { position: relative; display: block; margin: 0 0 12px; --w: 84px; }
-
-.products .dd-blob { --w: 560px; right: -120px; top: -100px; z-index: 0; --s: 0.22; --px: 14; --py: 10; }
-.products .dd-blob2 { --w: 380px; left: -150px; bottom: -150px; z-index: 0; --s: 0.1; --px: -10; --py: -8; }
-.products .dd-cherry { --w: 170px; right: 8%; top: 30px; --r: 8deg; --s: 0.12; --px: -22; --py: -14; }
-.products .dd-lip { --w: 62px; right: 27%; bottom: 40px; --r: -16deg; --s: -0.06; --px: 30; --py: 20; }
-.products .dd-sp1 { --w: 38px; right: 4%; top: 250px; --s: -0.1; --px: -40; --py: 26; }
-.products .dd-sp2 { --w: 26px; right: 36%; top: 60px; --s: -0.14; --px: 24; --py: -22; }
-.products .dd-sp3 { --w: 30px; right: 19%; bottom: 14px; --s: 0.08; --px: -18; --py: 14; }
-.products .dd-sq { --w: 120px; right: 25%; top: 150px; --r: -6deg; --s: 0.05; --px: 18; --py: 10; }
-.products .dd-flower { --w: 64px; right: 3%; bottom: 46px; --s: -0.05; --px: -26; --py: 18; }
-.products .dd-h1 { --w: 26px; right: 21%; top: 218px; --r: -14deg; --s: -0.09; --px: 22; --py: -16; }
-.products .dd-h2 { --w: 20px; right: 33%; bottom: 100px; --r: 12deg; --s: 0.07; --px: -14; --py: 12; }
-
-/* ---------- Hero ---------- */
-.products .hero { position: relative; overflow: hidden; padding: 88px 0 64px; border-bottom: 1px solid #e8e1d8; }
-.products .hero .wrap { position: relative; z-index: 2; }
-.products .eyebrow { margin: 0 0 18px; font: 600 12px 'Inter', sans-serif; letter-spacing: 0.18em; text-transform: uppercase; color: #8a3050; }
-.products .hero h1 { margin: 0 0 20px; max-width: 12ch; font: 500 clamp(48px, 8.5vw, 104px)/1 'Cormorant Garamond', serif; letter-spacing: -0.015em; }
-.products .scribble { position: relative; display: inline-block; }
-.products .scribble svg { position: absolute; left: -2%; bottom: -0.14em; width: 104%; height: 0.3em; overflow: visible; }
-.products .scribble path { fill: none; stroke: #8a3050; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: pr-draw 1.1s 0.5s ease forwards; }
-.products .lead { max-width: 520px; margin: 0 0 32px; font-size: 16px; line-height: 1.7; color: #5f5852; }
-
-/* Search + sort */
-.products .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
-.products .search { position: relative; flex: 1 1 280px; max-width: 430px; }
-.products .search svg { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); pointer-events: none; }
-.products .search input { width: 100%; padding: 16px 20px 16px 46px; border: 1px solid #e2d9cf; border-radius: 999px; background: #fdfbf8; color: #2b2420; font: 400 14px 'Inter', sans-serif; }
-.products .sort select {
-  appearance: none; padding: 16px 44px 16px 20px; border: 1px solid #e2d9cf; border-radius: 999px; color: #2b2420;
-  background: #fdfbf8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232b2420' stroke-width='3'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 18px center;
-  font: 400 13px 'Inter', sans-serif; cursor: pointer;
-}
-.products .search input:focus, .products .sort select:focus { outline: 2px solid #8a3050; outline-offset: 1px; }
-
-/* Sidebar + content */
-.products .layout { position: relative; z-index: 2; display: flex; gap: 40px; padding-top: 32px; padding-bottom: 64px; }
-.products .sidebar { flex: 0 0 200px; }
-.products .content { flex: 1; min-width: 0; }
-
-.products .filters-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.products .filters-head h3 { margin: 0; font: 600 13px 'Inter', sans-serif; }
-.products .clear { border: none; background: none; color: #8a3050; font: 400 11px 'Inter', sans-serif; text-decoration: underline; cursor: pointer; }
-.products .group { padding: 20px 0; }
-.products .group + .group { border-top: 1px solid #e8e1d8; }
-.products .group h4 { margin: 0 0 14px; font: 600 11px 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; }
-.products .group label { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; color: #5f5852; cursor: pointer; }
-.products .group input { width: 16px; height: 16px; margin: 0; accent-color: #8a3050; }
-.products .filters-toggle { display: none; }
-
-/* Little note under the filters */
-.products .side-note { position: relative; margin-top: 12px; padding: 22px 18px 20px; border-radius: 20px; background: #f3dedb; overflow: hidden; }
-.products .side-note .dd { position: relative; display: block; margin: 0 0 10px; --w: 56px; }
-.products .side-note strong { display: block; margin-bottom: 4px; font: 500 20px/1.15 'Cormorant Garamond', serif; color: #8a3050; }
-.products .side-note p { margin: 0; font-size: 12px; line-height: 1.5; color: #6b4a52; }
-
-/* Top bar */
-.products .topbar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-bottom: 24px; font-size: 12px; color: #5f5852; }
-.products .ship { color: #5b7a5e; }
-
-/* Grid + card */
-.products .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 32px 20px; }
-.products .card-link { display: block; text-decoration: none; color: inherit; }
-.products .image-box { position: relative; aspect-ratio: 332 / 300; border-radius: 20px; overflow: hidden; background: #efe3d6; }
-.products .image-box img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
-.products .card-link:hover .image-box img { transform: scale(1.03); }
-.products .badge { position: absolute; top: 12px; left: 12px; padding: 8px 14px; border-radius: 999px; background: white; color: #8a3050; font: 600 11px 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; line-height: 1; }
-.products .meta { margin: 14px 0 0; font: 400 10px 'Inter', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #8d857d; }
-.products .card-link h3 { margin: 4px 0 6px; font: 500 24px/1.2 'Cormorant Garamond', serif; }
-.products .price { margin: 0; font: 700 14px 'Inter', sans-serif; }
-.products .empty { padding: 48px 0; color: #5f5852; }
-
-/* Pagination */
-.products .pages { display: flex; justify-content: center; gap: 8px; margin-top: 48px; }
-.products .pages button { width: 38px; height: 38px; border: 1px solid #e2d9cf; border-radius: 50%; background: white; color: #2b2420; font: 500 12px 'Inter', sans-serif; cursor: pointer; }
-.products .pages button.active { background: #8a3050; border-color: #8a3050; color: white; }
-.products .pages button:disabled { opacity: 0.4; cursor: default; }
-
-@keyframes pr-float { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-10px) rotate(4deg); } }
-@keyframes pr-spin { to { transform: rotate(360deg); } }
-@keyframes pr-draw { to { stroke-dashoffset: 0; } }
-
-/* Laptops: tuck the doodles in a little */
-@media (max-width: 1100px) {
-  .products .dd-sq, .products .dd-h2 { display: none; }
-  .products .dd-cherry { --w: 140px; }
-}
-
-/* Tablets and phones: filters collapse behind a button */
-@media (max-width: 900px) {
-  .products .hero { padding: 64px 0 44px; }
-  .products .dd-lip, .products .dd-flower, .products .dd-h1, .products .dd-sp3 { display: none; }
-  .products .dd-blob { --w: 400px; right: -120px; top: -70px; }
-  .products .dd-cherry { --w: 120px; right: 4%; top: 24px; }
-  .products .layout { flex-direction: column; gap: 0; padding-top: 24px; }
-  .products .sidebar { display: none; flex: none; }
-  .products .sidebar.open { display: block; margin-bottom: 24px; }
-  .products .filters-toggle {
-    display: block; width: 100%; margin-bottom: 16px; padding: 14px;
-    border: 1px solid #e2d9cf; border-radius: 999px; background: white; color: #2b2420;
-    font: 500 13px 'Inter', sans-serif; cursor: pointer;
-  }
-}
-
-@media (max-width: 600px) {
-  .products .wrap { padding-left: 16px; padding-right: 16px; }
-  .products .hero { padding: 56px 0 32px; }
-  .products .dd-blob2, .products .dd-sp2 { display: none; }
-  .products .dd-blob { --w: 300px; right: -110px; top: -60px; }
-  .products .dd-cherry { --w: 84px; right: 2%; top: 10px; }
-  .products .dd-sp1 { --w: 26px; right: 6%; top: 150px; }
-  .products .toolbar { flex-direction: column; }
-  .products .search { max-width: none; flex: none; }
-  .products .sort select { width: 100%; }
-  .products .grid { gap: 24px 14px; }
-  .products .card-link h3 { font-size: 20px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .products .dd { transform: rotate(var(--r, 0deg)); transition: none; }
-  .products .dd svg { animation: none !important; }
-  .products .scribble path { animation: none; stroke-dashoffset: 0; }
-  .products .image-box img { transition: none; }
-}
+.products { font-family: 'Inter', sans-serif; }
+.products .dd { position:absolute; z-index:1; width:var(--w,80px); pointer-events:none; will-change:transform; transform:translate3d(calc(var(--mx,0)*var(--px,0)*1px),calc(var(--sy,0)*var(--s,0)*1px + var(--my,0)*var(--py,0)*1px),0) rotate(var(--r,0deg)); transition:transform .25s ease-out; }
+.products .dd svg { display:block; width:100%; height:auto; overflow:visible; }
+.products .dd.float svg { animation:pr-float 6s ease-in-out infinite; }
+.products .dd.spin svg { animation:pr-spin 40s linear infinite; }
+.products .dd.static { position:relative; display:block; margin:0 0 12px; --w:84px; }
+.products .dd-blob { --w:560px; right:-120px; top:-100px; z-index:0; --s:.22; --px:14; --py:10; }
+.products .dd-blob2 { --w:380px; left:-150px; bottom:-150px; z-index:0; --s:.1; --px:-10; --py:-8; }
+.products .dd-cherry { --w:170px; right:8%; top:30px; --r:8deg; --s:.12; --px:-22; --py:-14; }
+.products .dd-lip { --w:62px; right:27%; bottom:40px; --r:-16deg; --s:-.06; --px:30; --py:20; }
+.products .dd-sp1 { --w:38px; right:4%; top:250px; --s:-.1; --px:-40; --py:26; }
+.products .dd-sp2 { --w:26px; right:36%; top:60px; --s:-.14; --px:24; --py:-22; }
+.products .dd-sp3 { --w:30px; right:19%; bottom:14px; --s:.08; --px:-18; --py:14; }
+.products .dd-sq { --w:120px; right:25%; top:150px; --r:-6deg; --s:.05; --px:18; --py:10; }
+.products .dd-flower { --w:64px; right:3%; bottom:46px; --s:-.05; --px:-26; --py:18; }
+.products .dd-h1 { --w:26px; right:21%; top:218px; --r:-14deg; --s:-.09; --px:22; --py:-16; }
+.products .dd-h2 { --w:20px; right:33%; bottom:100px; --r:12deg; --s:.07; --px:-14; --py:12; }
+.products .scribble { position:relative; display:inline-block; }
+.products .scribble svg { position:absolute; left:-2%; bottom:-.14em; width:104%; height:.3em; overflow:visible; }
+.products .scribble path { fill:none; stroke:#8a3050; stroke-width:3; stroke-linecap:round; stroke-dasharray:1; stroke-dashoffset:1; animation:pr-draw 1.1s .5s ease forwards; }
+@keyframes pr-float { 0%,100% { transform:translateY(0) rotate(0); } 50% { transform:translateY(-10px) rotate(4deg); } }
+@keyframes pr-spin { to { transform:rotate(360deg); } }
+@keyframes pr-draw { to { stroke-dashoffset:0; } }
+@media (max-width:1100px) { .products .dd-sq,.products .dd-h2 { display:none; } .products .dd-cherry { --w:140px; } }
+@media (max-width:900px) { .products .dd-lip,.products .dd-flower,.products .dd-h1,.products .dd-sp3 { display:none; } .products .dd-blob { --w:400px; right:-120px; top:-70px; } .products .dd-cherry { --w:120px; right:4%; top:24px; } }
+@media (max-width:600px) { .products .dd-blob2,.products .dd-sp2 { display:none; } .products .dd-blob { --w:300px; right:-110px; top:-60px; } .products .dd-cherry { --w:84px; right:2%; top:10px; } .products .dd-sp1 { --w:26px; right:6%; top:150px; } }
+@media (prefers-reduced-motion:reduce) { .products .dd { transform:rotate(var(--r,0deg)); transition:none; } .products .dd svg { animation:none!important; } .products .scribble path { animation:none; stroke-dashoffset:0; } }
 `;
 
 // One block of checkboxes (Category, Price or Finish)
@@ -331,11 +211,14 @@ function FilterGroup({
   onClear,
 }) {
   return (
-    <div className="group">
-      <h4>{title}</h4>
-      <label>
+    <div className="border-b border-[#e8e1d8] py-5 last:border-b-0">
+      <h4 className="mb-3.5 text-[11px] font-semibold uppercase tracking-[0.14em]">
+        {title}
+      </h4>
+      <label className="mb-3 flex cursor-pointer items-center gap-2.5 text-[13px] text-[#5f5852]">
         <input
           type="checkbox"
+          className="m-0 h-4 w-4 accent-[#8a3050]"
           name={`${name}-all`}
           checked={selected.length === 0}
           onChange={onClear}
@@ -343,9 +226,13 @@ function FilterGroup({
         {allLabel}
       </label>
       {options.map((option) => (
-        <label key={option}>
+        <label
+          key={option}
+          className="mb-3 flex cursor-pointer items-center gap-2.5 text-[13px] text-[#5f5852]"
+        >
           <input
             type="checkbox"
+            className="m-0 h-4 w-4 accent-[#8a3050]"
             name={name}
             value={option}
             checked={selected.includes(option)}
@@ -360,14 +247,31 @@ function FilterGroup({
 
 function ProductCard({ id, name, price, image, badge, category }) {
   return (
-    <Link to={`/product/${id}`} className="card-link">
-      <div className="image-box">
-        {image && <img src={image} alt={name} loading="lazy" />}
-        {badge && <span className="badge">{badge}</span>}
+    <Link to={`/product/${id}`} className="block text-inherit no-underline">
+      <div className="relative aspect-[332/300] overflow-hidden rounded-[20px] bg-[#efe3d6]">
+        {image && (
+          <img
+            src={image}
+            alt={name}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.03]"
+          />
+        )}
+        {badge && (
+          <span className="absolute left-3 top-3 rounded-full bg-white px-3.5 py-2 text-[11px] font-semibold uppercase leading-none tracking-[0.14em] text-[#8a3050]">
+            {badge}
+          </span>
+        )}
       </div>
-      {category && <p className="meta">{category}</p>}
-      <h3>{name}</h3>
-      <p className="price">${Number(price).toFixed(2)}</p>
+      {category && (
+        <p className="mb-0 mt-3.5 text-[10px] uppercase tracking-[0.14em] text-[#8d857d]">
+          {category}
+        </p>
+      )}
+      <h3 className="mb-1.5 mt-1 font-[Cormorant_Garamond,serif] text-2xl font-medium leading-tight">
+        {name}
+      </h3>
+      <p className="m-0 text-sm font-bold">${Number(price).toFixed(2)}</p>
     </Link>
   );
 }
@@ -444,9 +348,8 @@ export default function Products() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  if (loading) return <p style={{ padding: 40 }}>Loading products…</p>;
-  if (error)
-    return <p style={{ padding: 40 }}>Could not load products: {error}</p>;
+  if (loading) return <p className="p-10">Loading products…</p>;
+  if (error) return <p className="p-10">Could not load products: {error}</p>;
 
   // Filter options come from the data
   const categoryNames = categoryList.map((c) => c.name);
@@ -481,12 +384,15 @@ export default function Products() {
   const visible = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <div className="products" ref={rootRef}>
+    <div
+      className="products relative overflow-x-clip bg-[#faf7f2] text-left text-[#2b2420]"
+      ref={rootRef}
+    >
       <style>{css}</style>
 
       {/* Hero */}
       <section
-        className="hero"
+        className="relative overflow-hidden border-b border-[#e8e1d8] pb-8 pt-14 sm:pb-16 sm:pt-[88px]"
         onMouseMove={onHeroMove}
         onMouseLeave={onHeroLeave}
       >
@@ -502,9 +408,11 @@ export default function Products() {
         <Doodle name="heart" className="dd-h1 float" />
         <Doodle name="heart" className="dd-h2 float" />
 
-        <div className="wrap">
-          <p className="eyebrow">The color collection</p>
-          <h1>
+        <div className="relative z-[2] mx-auto max-w-[1296px] px-4 sm:px-6">
+          <p className="mb-[18px] text-xs font-semibold uppercase tracking-[0.18em] text-[#8a3050]">
+            The color collection
+          </p>
+          <h1 className="mb-5 max-w-[12ch] font-[Cormorant_Garamond,serif] text-[clamp(48px,8.5vw,104px)] font-medium leading-none tracking-[-0.015em]">
             Color, edited with{" "}
             <span className="scribble">
               care.
@@ -521,14 +429,15 @@ export default function Products() {
               </svg>
             </span>
           </h1>
-          <p className="lead">
+          <p className="mb-8 max-w-[520px] text-base leading-[1.7] text-[#5f5852]">
             Discover intuitive color, effortless application, and sensorial
             textures made for your daily makeup ritual.
           </p>
 
-          <div className="toolbar">
-            <div className="search">
+          <div className="flex flex-wrap justify-between gap-4 max-[600px]:flex-col">
+            <div className="relative w-full max-w-[430px] flex-[1_1_280px] max-[600px]:max-w-none max-[600px]:flex-none">
               <svg
+                className="pointer-events-none absolute left-[18px] top-1/2 -translate-y-1/2"
                 width="16"
                 height="16"
                 viewBox="0 0 24 24"
@@ -545,6 +454,7 @@ export default function Products() {
                 name="search"
                 aria-label="Search products"
                 placeholder="Search by name, brand or category"
+                className="w-full rounded-full border border-[#e2d9cf] bg-[#fdfbf8] py-4 pl-[46px] pr-5 text-sm text-[#2b2420] outline-none focus:ring-2 focus:ring-[#8a3050]"
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -553,10 +463,11 @@ export default function Products() {
               />
             </div>
 
-            <div className="sort">
+            <div className="relative">
               <select
                 name="sort"
                 aria-label="Sort products"
+                className="cursor-pointer appearance-none rounded-full border border-[#e2d9cf] bg-[#fdfbf8] py-4 pl-5 pr-11 text-[13px] text-[#2b2420] outline-none focus:ring-2 focus:ring-[#8a3050] max-[600px]:w-full"
                 value={sort}
                 onChange={(e) => {
                   setSort(e.target.value);
@@ -574,11 +485,16 @@ export default function Products() {
       </section>
 
       {/* Filters + products */}
-      <div className="wrap layout">
-        <aside className={showFilters ? "sidebar open" : "sidebar"}>
-          <div className="filters-head">
-            <h3>Filters</h3>
-            <button className="clear" onClick={clearAll}>
+      <div className="relative z-[2] mx-auto flex max-w-[1296px] gap-10 px-4 pb-16 pt-8 sm:px-6 max-[900px]:flex-col max-[900px]:gap-0 max-[900px]:pt-6">
+        <aside
+          className={`${showFilters ? "block" : "hidden"} w-[200px] shrink-0 max-[900px]:mb-6 max-[900px]:w-full ${showFilters ? "max-[900px]:block" : "max-[900px]:hidden"} min-[901px]:block`}
+        >
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-[13px] font-semibold">Filters</h3>
+            <button
+              className="cursor-pointer border-0 bg-transparent text-[11px] text-[#8a3050] underline"
+              onClick={clearAll}
+            >
               Clear all
             </button>
           </div>
@@ -613,37 +529,41 @@ export default function Products() {
             />
           )}
 
-          <div className="side-note">
+          <div className="relative mt-3 overflow-hidden rounded-[20px] bg-[#f3dedb] px-[18px] pb-5 pt-[22px]">
             <Doodle name="sparkle" className="float" />
-            <strong>A little extra</strong>
-            <p>
+            <strong className="mb-1 block font-[Cormorant_Garamond,serif] text-xl font-medium leading-tight text-[#8a3050]">
+              A little extra
+            </strong>
+            <p className="text-xs leading-[1.5] text-[#6b4a52]">
               Complimentary samples with every order, and free shipping over
               $75.
             </p>
           </div>
         </aside>
 
-        <main className="content">
+        <main className="min-w-0 flex-1">
           {/* Shown only on tablets and phones */}
           <button
-            className="filters-toggle"
+            className="mb-4 hidden w-full cursor-pointer rounded-full border border-[#e2d9cf] bg-white p-3.5 text-[13px] font-medium text-[#2b2420] max-[900px]:block"
             onClick={() => setShowFilters(!showFilters)}
           >
             {showFilters ? "Hide filters" : "Show filters"}
           </button>
 
-          <div className="topbar">
+          <div className="mb-6 flex flex-wrap justify-between gap-2 text-xs text-[#5f5852]">
             <span>{sorted.length} products</span>
-            <span className="ship">Complimentary shipping over $75</span>
+            <span className="text-[#5b7a5e]">
+              Complimentary shipping over $75
+            </span>
           </div>
 
           {visible.length === 0 ? (
-            <div className="empty">
+            <div className="py-12 text-[#5f5852]">
               <Doodle name="cherry" className="static float" />
               <p>No products match your filters.</p>
             </div>
           ) : (
-            <div className="grid">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-x-5 gap-y-8 max-[600px]:gap-x-3.5 max-[600px]:gap-y-6">
               {visible.map((p) => (
                 <ProductCard key={p.id} {...p} />
               ))}
@@ -651,11 +571,11 @@ export default function Products() {
           )}
 
           {pageCount > 1 && (
-            <div className="pages">
+            <div className="mt-12 flex justify-center gap-2">
               {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
                 <button
                   key={n}
-                  className={n === page ? "active" : ""}
+                  className={`h-[38px] w-[38px] cursor-pointer rounded-full border text-xs font-medium ${n === page ? "border-[#8a3050] bg-[#8a3050] text-white" : "border-[#e2d9cf] bg-white text-[#2b2420]"}`}
                   aria-current={n === page ? "page" : undefined}
                   onClick={() => goToPage(n)}
                 >
@@ -664,6 +584,7 @@ export default function Products() {
               ))}
               <button
                 aria-label="Next page"
+                className="h-[38px] w-[38px] rounded-full border border-[#e2d9cf] bg-white text-xs disabled:cursor-default disabled:opacity-40"
                 disabled={page === pageCount}
                 onClick={() => goToPage(Math.min(page + 1, pageCount))}
               >

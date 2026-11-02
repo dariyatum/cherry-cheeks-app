@@ -14,7 +14,7 @@ const items = [
   { name: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
   { name: "Products", to: "/admin/products", icon: Package },
   { name: "Orders", to: "/admin/orders", icon: ReceiptText },
-  { name: "Customers", to: "/admin/customers", icon: Users },
+  { name: "Users", to: "/admin/customers", icon: Users },
 ];
 
 const linkClass = ({ isActive }) =>

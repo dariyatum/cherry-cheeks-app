@@ -48,7 +48,7 @@ function About() {
       </section>
 
       {/* Intro */}
-      <section className={`${container} py-16 text-center lg:py-24`}>
+      <section className={`${container}  py-16 text-center lg:py-24 border-b border-gray-300` }>
         <p className={`${eyebrow} mb-5`}>Born in Seoul · Made with intention</p>
         <h1 className="mx-auto max-w-3xl font-display text-4xl leading-tight text-gray-900 sm:text-5xl lg:text-6xl">
           We believe beauty begins with attention.
@@ -61,7 +61,7 @@ function About() {
 
       {/* Our story */}
       <section
-        className={`${container} grid items-center gap-10 pb-16 lg:grid-cols-[1fr_1.6fr] lg:gap-16 lg:pb-24`}
+        className={`${container} pt-15 grid items-center gap-10 pb-16 lg:grid-cols-[1fr_1.6fr] lg:gap-16 lg:pb-24 `}
       >
         <div>
           <p className="font-display text-5xl italic text-cherry">01</p>
@@ -122,7 +122,7 @@ function About() {
 
       {/* Meet the founder */}
       <section
-        className={`${container} grid items-center gap-10 py-16 lg:grid-cols-[1fr_1.3fr] lg:gap-16 lg:py-24`}
+        className={`${container} grid items-center gap-10 py-16 lg:grid-cols-[1fr_1.3fr] lg:gap-16 lg:py-24 border-b border-gray-300`}
       >
         <img
           src={founderPortrait}
@@ -154,7 +154,7 @@ function About() {
       </section>
 
       {/* Team */}
-      <section className={`${container} pb-16 lg:pb-24`}>
+      <section className={`${container} pb-16 lg:pb-24 border-b border-gray-300 pt-15`}>
         <div className="mb-8">
           <p className={`${eyebrow} mb-2`}>The people behind the ritual</p>
           <h2 className="font-display text-3xl text-gray-900 sm:text-4xl">
@@ -185,7 +185,7 @@ function About() {
       </section>
 
       {/* Promise: full-width color */}
-      <section className="w-full  text-center lg:py-24">
+      <section className="w-full  text-center lg:py-24 border-b border-gray-300">
         <div className={container}>
           <p className={`${eyebrow} text-3xl mb-4`} >Our promise</p>
           <h2 className="mx-auto max-w-2xl font-display text-3xl leading-snug text-gray-900 sm:text-5xl">

@@ -57,14 +57,10 @@ function App() {
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       {/* Admin only: one guard covers every page inside */}
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute roles={["admin"]}>
-            <AdminLayout />
-          </ProtectedRoute>
-        }
-      >
+     <Route
+  path="/admin"
+  element={<AdminLayout />}
+>
         <Route index element={<AdminOverview />} />
         <Route path="products" element={<AdminProducts />} />
         <Route path="products/:category" element={<AdminProducts />} />

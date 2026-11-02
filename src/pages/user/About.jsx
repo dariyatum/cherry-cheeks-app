@@ -35,7 +35,7 @@ const team = [
 
 function About() {
   return (
-    <div className="bg-cream">
+    <div className="bg-[#faf7f2]">
       {/* Hero image */}
       <section className={`${container} pt-4`}>
         <div className="aspect-[4/3] overflow-hidden rounded-3xl bg-blush sm:aspect-[16/7]">

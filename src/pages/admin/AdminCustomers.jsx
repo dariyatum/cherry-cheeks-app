@@ -207,7 +207,7 @@ function AdminCustomers() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 className="font-display text-3xl text-gray-900 sm:text-4xl">
-            Customers
+            Users
           </h1>
           <p className="mt-1 text-sm text-gray-600">
             {customers.length} customer{customers.length === 1 ? "" : "s"}
@@ -233,7 +233,7 @@ function AdminCustomers() {
 
           <Button arrow={false} onClick={() => setEditing("new")}>
             <Plus size={18} aria-hidden="true" />
-            Add customer
+            Add user
           </Button>
         </div>
       </div>

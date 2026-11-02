@@ -4,7 +4,7 @@ import { LogOut } from "lucide-react";
 import { getUser, logout } from "../../auth";
 import LoginButton from "../../components/LoginButton";
 
-const menu = ["Profile Overview", "Order History", "Wishlist", "Settings"];
+const menu = ["Profile Overview", "Order History", "Wishlist"];
 
 // ---------- Small components ----------
 function SectionHeader({ title, viewAllTo }) {

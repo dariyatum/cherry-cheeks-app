@@ -88,7 +88,7 @@ function About() {
       </section>
 
       {/* Mission: full-width color */}
-      <section className="w-full bg-[#F2D9DA] py-16 lg:py-24">
+      <section className="w-full  py-16 lg:py-24">
         <div className={container}>
           <div className="mb-10 text-center">
             <p className={`${eyebrow} mb-2`}>Our mission</p>
@@ -185,7 +185,7 @@ function About() {
       </section>
 
       {/* Promise: full-width color */}
-      <section className="w-full bg-[#E9DED0]  text-center lg:py-24">
+      <section className="w-full  text-center lg:py-24">
         <div className={container}>
           <p className={`${eyebrow} text-3xl mb-4`} >Our promise</p>
           <h2 className="mx-auto max-w-2xl font-display text-3xl leading-snug text-gray-900 sm:text-5xl">

@@ -1,52 +1,47 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { Link, useLocation } from "react-router-dom";
+import { login } from "../auth";
 
 export default function LoginCard() {
-  const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
 
-  // Page the user was on before opening login (string or location object)
+  // Page the user was on before opening login
   const rawFrom = location.state?.from;
-  let from =
-    typeof rawFrom === "string"
-      ? rawFrom
-      : rawFrom?.pathname
-      ? rawFrom.pathname + (rawFrom.search || "")
-      : "/";
+  let from = "/";
+  if (typeof rawFrom === "string") {
+    from = rawFrom;
+  } else if (rawFrom?.pathname) {
+    from = rawFrom.pathname + (rawFrom.search || "");
+  }
   if (["/login", "/register", "/unauthorized"].includes(from)) from = "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
-    try {
-      setLoading(true);
-      const user = await login(email, password, remember); // wait for the result
+    const user = login(email, password, remember);
 
-      if (!user) {
-        setError("Wrong email or password");
-        return;
-      }
-
-      // Staff go to their area; customers never get sent to staff pages
-      const routes = { ADMIN: "/admin", CASHIER: "/cashier" };
-      const staffOnly = from.startsWith("/admin") || from.startsWith("/cashier");
-      const target = routes[user.role] || (staffOnly ? "/" : from);
-
-      navigate(target, { replace: true });
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
+    if (!user) {
+      setError("Wrong email or password");
+      return;
     }
+
+    // Where to go after login
+    let target = from;
+    if (user.role === "ADMIN") {
+      target = "/admin";
+    } else if (user.role === "CASHIER") {
+      target = "/cashier";
+    } else if (from.startsWith("/admin") || from.startsWith("/cashier")) {
+      target = "/"; // customers never go to staff pages
+    }
+
+    window.location.assign(target); // full reload so the whole app sees the login
   };
 
   const input =
@@ -123,10 +118,9 @@ export default function LoginCard() {
 
         <button
           type="submit"
-          disabled={loading}
-          className="h-[50px] rounded-xl bg-[#8f3f56] text-base font-semibold text-white shadow-[0_8px_20px_rgba(143,63,86,0.25)] hover:bg-[#7a3448] disabled:opacity-60"
+          className="h-[50px] rounded-xl bg-[#8f3f56] text-base font-semibold text-white shadow-[0_8px_20px_rgba(143,63,86,0.25)] hover:bg-[#7a3448]"
         >
-          {loading ? "Signing in..." : "Sign in"}
+          Sign in
         </button>
 
         <div className="my-5 flex items-center gap-3 text-[13px] text-gray-500 before:h-px before:flex-1 before:bg-gray-200 before:content-[''] after:h-px after:flex-1 after:bg-gray-200 after:content-['']">

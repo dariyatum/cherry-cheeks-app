@@ -15,93 +15,48 @@ function statusOf(p) {
   return { key: "active", label: "Active" };
 }
 
-const css = `
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600;700&display=swap');
+// ---------- Shared class strings ----------
+const focusRing =
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8f3f56]";
 
-.adm-page {
-  --berry: #8f3f56; --berry-dark: #74304a; --link: #b03a5f;
-  --line: #e9dfdb; --ink: #241d1b; --muted: #7b706b;
-  color: var(--ink); font-family: 'Inter', sans-serif; text-align: left;
+const inputBase =
+  "box-border h-11 w-full min-w-0 appearance-none rounded-[10px] border bg-white px-3.5 text-sm text-[#241d1b] " +
+  focusRing +
+  " [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
+
+const btnBase =
+  "box-border h-11 cursor-pointer rounded-full border px-[22px] text-sm font-medium leading-none transition-colors " +
+  focusRing;
+const btnOutline = `${btnBase} border-[#8f3f56] bg-transparent text-[#8f3f56] hover:bg-[#8f3f56]/5`;
+const btnSolid = `${btnBase} border-[#8f3f56] bg-[#8f3f56] text-white hover:bg-[#74304a]`;
+const btnDanger = `${btnBase} border-[#b3261e] bg-[#b3261e] text-white hover:bg-[#8f1d17]`;
+
+const linkBtn =
+  "cursor-pointer border-0 bg-transparent p-0 text-[13px] font-medium text-[#b03a5f] hover:underline hover:underline-offset-[3px] " +
+  focusRing;
+
+const scrim =
+  "fixed inset-0 z-[100] box-border grid place-items-center bg-[#241d1b]/50 p-5 backdrop-blur-[3px]";
+
+const modalBox =
+  "box-border max-h-[92vh] w-[min(480px,100%)] overflow-y-auto overflow-x-hidden rounded-[22px] bg-[#fffefd] [&_*]:box-border";
+
+const modalTitle =
+  "m-0 mb-1 font-['Cormorant_Garamond',serif] text-[28px] font-medium";
+const modalText = "m-0 mb-5 text-[13px] leading-relaxed text-[#7b706b]";
+
+// ---------- Small field wrapper ----------
+function Field({ id, label, error, children }) {
+  return (
+    <div className="grid min-w-0 gap-1.5">
+      <label htmlFor={id} className="text-xs font-semibold">
+        {label}
+      </label>
+      {children}
+      {error && <span className="text-xs text-[#b3261e]">{error}</span>}
+    </div>
+  );
 }
-.adm-page *, .adm-page *::before, .adm-page *::after { box-sizing: border-box; }
-.adm-page button { font-family: inherit; }
-.adm-page button:focus-visible, .adm-page a:focus-visible, .adm-page input:focus-visible, .adm-page select:focus-visible {
-  outline: 2px solid var(--berry); outline-offset: 2px;
-}
-.adm-page .pg-top h1 { margin: 0; font: 500 38px/1.1 'Cormorant Garamond', serif; }
-.adm-page .pg-top p { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
-@media (max-width: 900px) { .adm-page .pg-top h1 { font-size: 32px; } }
-@media (prefers-reduced-motion: reduce) {
-  .adm-page *, .adm-page *::before, .adm-page *::after { transition: none !important; animation: none !important; }
-}
-.adm-page .pg-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-top: 28px; }
-.adm-page .pg-search { position: relative; flex: 1 1 280px; max-width: 340px; }
-.adm-page .pg-search svg { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); pointer-events: none; stroke: #5f5852; fill: none; }
-.adm-page .pg-search input { width: 100%; height: 46px; padding: 0 18px 0 46px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); font: 400 13px 'Inter', sans-serif; }
-.adm-page .pg-search input::placeholder { color: #a39b93; }
-.adm-page .pg-add { display: inline-flex; align-items: center; gap: 10px; height: 48px; padding: 0 26px; border: none; border-radius: 999px; background: var(--berry); color: #fff; font: 500 15px 'Inter', sans-serif; cursor: pointer; transition: background 0.2s, transform 0.2s; }
-.adm-page .pg-add:hover { background: var(--berry-dark); transform: translateY(-1px); }
-
-.adm-page .pg-chips { display: flex; gap: 10px; margin: 24px 0 20px; overflow-x: auto; scrollbar-width: none; }
-.adm-page .pg-chips::-webkit-scrollbar { display: none; }
-.adm-page .pg-chip { flex: none; height: 34px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); font: 400 12px 'Inter', sans-serif; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
-.adm-page .pg-chip:hover { border-color: var(--berry); color: var(--berry); }
-.adm-page .pg-chip.on { background: var(--berry); border-color: var(--berry); color: #fff; }
-
-.adm-page .pg-card { border: 1px solid var(--line); border-radius: 16px; background: #fffefd; overflow: hidden; }
-.adm-page .pg-head { display: flex; justify-content: space-between; gap: 12px; padding: 14px 16px; background: #fbeeee; font: 700 11px 'Inter', sans-serif; letter-spacing: 0.02em; text-transform: uppercase; }
-.adm-page .pg-head span:last-child { color: var(--muted); font-weight: 400; text-transform: none; }
-.adm-page .pg-list { margin: 0; padding: 0; list-style: none; }
-.adm-page .pg-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px; border-top: 1px solid var(--line); transition: background 0.2s; }
-.adm-page .pg-row:first-child { border-top: none; }
-.adm-page .pg-row:hover { background: #fdf8f7; }
-.adm-page .pg-name { margin: 0 0 4px; font: 600 14px 'Inter', sans-serif; }
-.adm-page .pg-meta { margin: 0; font-size: 12px; color: var(--muted); }
-.adm-page .pg-actions { display: flex; align-items: center; gap: 16px; flex: none; font-size: 13px; }
-.adm-page .pg-status { color: var(--muted); }
-.adm-page .pg-status.low { color: #a8612a; }
-.adm-page .pg-link { padding: 0; border: none; background: none; color: var(--link); font: 500 13px 'Inter', sans-serif; cursor: pointer; }
-.adm-page .pg-link:hover { text-decoration: underline; text-underline-offset: 3px; }
-.adm-page .pg-empty { margin: 0; padding: 40px 16px; text-align: center; color: var(--muted); font-size: 14px; }
-
-.adm-page .pg-foot { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 16px; border-top: 1px solid var(--line); }
-.adm-page .pg-foot button { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 50%; background: #fff; font: 500 13px 'Inter', sans-serif; cursor: pointer; }
-.adm-page .pg-foot button.on { background: var(--berry); border-color: var(--berry); color: #fff; }
-.adm-page .pg-foot button:disabled { opacity: 0.4; cursor: default; }
-.adm-page .pg-reset { margin-top: 16px; padding: 0; border: none; background: none; color: var(--muted); font: 400 12px 'Inter', sans-serif; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-
-/* ---------- Dialogs ---------- */
-.adm-page .pg-scrim { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 20px; background: rgba(36, 29, 27, 0.5); backdrop-filter: blur(3px); animation: pg-fade 0.2s ease; }
-.adm-page .pg-modal { width: min(480px, 100%); max-height: 92vh; overflow: auto; padding: 28px; border-radius: 22px; background: #fffefd; animation: pg-pop 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.adm-page .pg-modal h2 { margin: 0 0 4px; font: 500 28px 'Cormorant Garamond', serif; }
-.adm-page .pg-modal > p { margin: 0 0 20px; font-size: 13px; color: var(--muted); line-height: 1.6; }
-.adm-page .pg-form { display: grid; gap: 14px; }
-.adm-page .pg-two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.adm-page .pg-field { display: grid; gap: 6px; }
-.adm-page .pg-field label { font: 600 12px 'Inter', sans-serif; }
-.adm-page .pg-field input, .adm-page .pg-field select { height: 44px; padding: 0 14px; border: 1px solid #e2d9cf; border-radius: 10px; background: #fff; color: var(--ink); font: 400 14px 'Inter', sans-serif; }
-.adm-page .pg-field.bad input, .adm-page .pg-field.bad select { border-color: #b3261e; }
-.adm-page .pg-err { font-size: 12px; color: #b3261e; }
-.adm-page .pg-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
-.adm-page .pg-btn { height: 44px; padding: 0 22px; border: 1px solid var(--berry); border-radius: 999px; background: none; color: var(--berry); font: 500 14px 'Inter', sans-serif; cursor: pointer; }
-.adm-page .pg-btn.solid { background: var(--berry); color: #fff; }
-.adm-page .pg-btn.danger { background: #b3261e; border-color: #b3261e; color: #fff; }
-
-.adm-page .pg-toast { position: fixed; left: 50%; bottom: 28px; z-index: 120; padding: 12px 22px; border-radius: 999px; background: var(--ink); color: #fff; font: 500 14px 'Inter', sans-serif; white-space: nowrap; animation: pg-toast 2.4s ease forwards; }
-
-@keyframes pg-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes pg-pop { from { opacity: 0; transform: translateY(14px) scale(0.98); } to { opacity: 1; transform: none; } }
-@keyframes pg-toast { 0% { opacity: 0; transform: translate(-50%, 14px); } 10% { opacity: 1; transform: translate(-50%, 0); } 85% { opacity: 1; } 100% { opacity: 0; } }
-
-@media (max-width: 600px) {
-  .adm-page .pg-search { max-width: none; }
-  .adm-page .pg-add { width: 100%; justify-content: center; }
-  .adm-page .pg-row { flex-direction: column; align-items: flex-start; gap: 10px; }
-  .adm-page .pg-actions { width: 100%; justify-content: space-between; }
-  .adm-page .pg-two { grid-template-columns: 1fr; }
-  .adm-page .pg-modal { padding: 22px; }
-}
-`;
 
 // ---------- Add / edit dialog ----------
 function ProductForm({ product, noun, takenSkus, onSave, onClose }) {
@@ -153,10 +108,13 @@ function ProductForm({ product, noun, takenSkus, onSave, onClose }) {
     });
   }
 
+  const border = (key) =>
+    errors[key] ? "border-[#b3261e]" : "border-[#e2d9cf]";
+
   return (
-    <div className="pg-scrim" onClick={onClose}>
+    <div className={scrim} onClick={onClose}>
       <form
-        className="pg-modal"
+        className={modalBox}
         role="dialog"
         aria-modal="true"
         aria-label={product ? "Edit product" : "Add product"}
@@ -164,94 +122,110 @@ function ProductForm({ product, noun, takenSkus, onSave, onClose }) {
         onSubmit={submit}
         noValidate
       >
-        <h2>{product ? `Edit ${noun}` : `Add ${noun}`}</h2>
-        <p>
-          {product
-            ? "Update the details below."
-            : "Fill in the details to add it to your inventory."}
-        </p>
+        <div style={{ padding: 28 }}>
+          <h2 className={modalTitle}>
+            {product ? `Edit ${noun}` : `Add ${noun}`}
+          </h2>
+          <p className={modalText}>
+            {product
+              ? "Update the details below."
+              : "Fill in the details to add it to your inventory."}
+          </p>
 
-        <div className="pg-form">
-          <div className={errors.name ? "pg-field bad" : "pg-field"}>
-            <label htmlFor="f-name">Name</label>
-            <input
-              id="f-name"
-              ref={firstRef}
-              value={form.name}
-              onChange={(e) => set("name", e.target.value)}
-            />
-            {errors.name && <span className="pg-err">{errors.name}</span>}
-          </div>
+          <div className="grid gap-3.5">
+            <Field id="f-name" label="Name" error={errors.name}>
+              <input
+                id="f-name"
+                ref={firstRef}
+                className={`${inputBase} ${border("name")}`}
+                value={form.name}
+                onChange={(e) => set("name", e.target.value)}
+              />
+            </Field>
 
-          <div className="pg-two">
-            <div className={errors.sku ? "pg-field bad" : "pg-field"}>
-              <label htmlFor="f-sku">SKU</label>
-              <input
-                id="f-sku"
-                value={form.sku}
-                onChange={(e) => set("sku", e.target.value)}
-              />
-              {errors.sku && <span className="pg-err">{errors.sku}</span>}
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+              <Field id="f-sku" label="SKU" error={errors.sku}>
+                <input
+                  id="f-sku"
+                  className={`${inputBase} ${border("sku")}`}
+                  value={form.sku}
+                  onChange={(e) => set("sku", e.target.value)}
+                />
+              </Field>
+              <Field id="f-brand" label="Brand">
+                <input
+                  id="f-brand"
+                  className={`${inputBase} border-[#e2d9cf]`}
+                  value={form.brand}
+                  onChange={(e) => set("brand", e.target.value)}
+                />
+              </Field>
             </div>
-            <div className="pg-field">
-              <label htmlFor="f-brand">Brand</label>
-              <input
-                id="f-brand"
-                value={form.brand}
-                onChange={(e) => set("brand", e.target.value)}
-              />
-            </div>
-          </div>
 
-          <div className="pg-two">
-            <div className={errors.price ? "pg-field bad" : "pg-field"}>
-              <label htmlFor="f-price">Price (USD)</label>
-              <input
-                id="f-price"
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.price}
-                onChange={(e) => set("price", e.target.value)}
-              />
-              {errors.price && <span className="pg-err">{errors.price}</span>}
-            </div>
-            <div className={errors.stockQuantity ? "pg-field bad" : "pg-field"}>
-              <label htmlFor="f-stock">Units in stock</label>
-              <input
+            <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+              <Field id="f-price" label="Price (USD)" error={errors.price}>
+                <input
+                  id="f-price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className={`${inputBase} ${border("price")}`}
+                  value={form.price}
+                  onChange={(e) => set("price", e.target.value)}
+                />
+              </Field>
+              <Field
                 id="f-stock"
-                type="number"
-                min="0"
-                step="1"
-                value={form.stockQuantity}
-                onChange={(e) => set("stockQuantity", e.target.value)}
-              />
-              {errors.stockQuantity && (
-                <span className="pg-err">{errors.stockQuantity}</span>
-              )}
+                label="Units in stock"
+                error={errors.stockQuantity}
+              >
+                <input
+                  id="f-stock"
+                  type="number"
+                  min="0"
+                  step="1"
+                  className={`${inputBase} ${border("stockQuantity")}`}
+                  value={form.stockQuantity}
+                  onChange={(e) => set("stockQuantity", e.target.value)}
+                />
+              </Field>
             </div>
+
+            <Field id="f-status" label="Status">
+              <div className="relative">
+                <select
+                  id="f-status"
+                  className={`${inputBase} border-[#e2d9cf] pr-9`}
+                  value={form.active ? "active" : "draft"}
+                  onChange={(e) => set("active", e.target.value === "active")}
+                >
+                  <option value="active">Active (visible in the shop)</option>
+                  <option value="draft">Draft (hidden)</option>
+                </select>
+                <svg
+                  className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#7b706b"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </div>
+            </Field>
           </div>
 
-          <div className="pg-field">
-            <label htmlFor="f-status">Status</label>
-            <select
-              id="f-status"
-              value={form.active ? "active" : "draft"}
-              onChange={(e) => set("active", e.target.value === "active")}
-            >
-              <option value="active">Active (visible in the shop)</option>
-              <option value="draft">Draft (hidden)</option>
-            </select>
+          <div className="mt-5 flex justify-end gap-2.5">
+            <button type="button" className={btnOutline} onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className={btnSolid}>
+              {product ? "Save changes" : `Add ${noun}`}
+            </button>
           </div>
-        </div>
-
-        <div className="pg-buttons">
-          <button type="button" className="pg-btn" onClick={onClose}>
-            Cancel
-          </button>
-          <button type="submit" className="pg-btn solid">
-            {product ? "Save changes" : `Add ${noun}`}
-          </button>
         </div>
       </form>
     </div>
@@ -261,23 +235,27 @@ function ProductForm({ product, noun, takenSkus, onSave, onClose }) {
 // ---------- Delete confirmation ----------
 function ConfirmDelete({ product, onConfirm, onClose }) {
   return (
-    <div className="pg-scrim" onClick={onClose}>
+    <div className={scrim} onClick={onClose}>
       <div
-        className="pg-modal"
+        className={modalBox}
         role="alertdialog"
         aria-modal="true"
         aria-label="Delete product"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2>Delete {product.name}?</h2>
-        <p>This removes it from your inventory. You can’t undo this.</p>
-        <div className="pg-buttons">
-          <button className="pg-btn" onClick={onClose}>
-            Cancel
-          </button>
-          <button className="pg-btn danger" onClick={onConfirm}>
-            Delete
-          </button>
+        <div style={{ padding: 28 }}>
+          <h2 className={modalTitle}>Delete {product.name}?</h2>
+          <p className={modalText}>
+            This removes it from your inventory. You can’t undo this.
+          </p>
+          <div className="mt-5 flex justify-end gap-2.5">
+            <button className={btnOutline} onClick={onClose}>
+              Cancel
+            </button>
+            <button className={btnDanger} onClick={onConfirm}>
+              Delete
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -296,12 +274,13 @@ const today = new Date().toLocaleDateString("en-US", {
 
 function Page({ title, children }) {
   return (
-    <div className="adm-page">
-      <style>{css}</style>
+    <div className="text-left font-['Inter',sans-serif] text-[#241d1b]">
       {SHOW_HEADER && (
-        <header className="pg-top">
-          <h1>{title}</h1>
-          <p>{today}</p>
+        <header>
+          <h1 className="m-0 font-['Cormorant_Garamond',serif] text-[32px] font-medium leading-[1.1] md:text-[38px]">
+            {title}
+          </h1>
+          <p className="m-0 mt-1.5 text-[13px] text-[#7b706b]">{today}</p>
         </header>
       )}
       {children}
@@ -355,7 +334,7 @@ export default function AdminProducts() {
   if (loading) {
     return (
       <Page title={title}>
-        <p style={{ marginTop: 32, color: "#7b706b" }}>Loading inventory…</p>
+        <p className="mt-8 text-[#7b706b]">Loading inventory…</p>
       </Page>
     );
   }
@@ -363,11 +342,11 @@ export default function AdminProducts() {
   if (error || !category) {
     return (
       <Page title="Products">
-        <p style={{ marginTop: 32 }}>
+        <p className="mt-8">
           {error
             ? `Could not load products: ${error}`
             : "That category does not exist."}{" "}
-          <Link to="/admin/products/makeup" style={{ color: "#b03a5f" }}>
+          <Link to="/admin/products/makeup" className="text-[#b03a5f]">
             Go to Makeup
           </Link>
         </p>
@@ -433,9 +412,11 @@ export default function AdminProducts() {
 
   return (
     <Page title={title}>
-      <div className="pg-bar">
-        <div className="pg-search">
+      {/* Search + add */}
+      <div className="mt-7 flex flex-wrap items-center justify-between gap-4">
+        <div className="relative max-w-none flex-[1_1_280px] sm:max-w-[340px]">
           <svg
+            className="pointer-events-none absolute left-[18px] top-1/2 -translate-y-1/2 fill-none stroke-[#5f5852]"
             width="16"
             height="16"
             viewBox="0 0 24 24"
@@ -450,6 +431,7 @@ export default function AdminProducts() {
             name="search"
             aria-label={`Search ${noun}`}
             placeholder={`Search ${noun}, SKU, category`}
+            className={`box-border h-[46px] w-full rounded-full border border-[#e9dfdb] bg-white pl-[46px] pr-[18px] text-[13px] text-[#241d1b] placeholder:text-[#a39b93] ${focusRing}`}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -458,16 +440,24 @@ export default function AdminProducts() {
           />
         </div>
 
-        <button className="pg-add" onClick={() => setEditing("new")}>
+        <button
+          className={`inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2.5 rounded-full border-0 bg-[#8f3f56] px-[26px] text-[15px] font-medium text-white transition hover:-translate-y-px hover:bg-[#74304a] motion-reduce:transition-none sm:w-auto ${focusRing}`}
+          onClick={() => setEditing("new")}
+        >
           Add {noun} <span aria-hidden="true">→</span>
         </button>
       </div>
 
-      <div className="pg-chips">
+      {/* Status chips */}
+      <div className="mb-5 mt-6 flex gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {chips.map((c) => (
           <button
             key={c.key}
-            className={status === c.key ? "pg-chip on" : "pg-chip"}
+            className={`h-[34px] flex-none cursor-pointer rounded-full border px-4 text-xs transition-colors motion-reduce:transition-none ${focusRing} ${
+              status === c.key
+                ? "border-[#8f3f56] bg-[#8f3f56] text-white"
+                : "border-[#e9dfdb] bg-white text-[#7b706b] hover:border-[#8f3f56] hover:text-[#8f3f56]"
+            }`}
             aria-pressed={status === c.key}
             onClick={() => {
               setStatus(c.key);
@@ -479,40 +469,55 @@ export default function AdminProducts() {
         ))}
       </div>
 
-      <section className="pg-card" aria-label={`${title} inventory`}>
-        <div className="pg-head">
+      {/* Inventory card */}
+      <section
+        className="overflow-hidden rounded-2xl border border-[#e9dfdb] bg-[#fffefd]"
+        aria-label={`${title} inventory`}
+      >
+        <div className="flex justify-between gap-3 bg-[#fbeeee] px-4 py-3.5 text-[11px] font-bold uppercase tracking-[0.02em]">
           <span>{title} inventory</span>
-          <span>
+          <span className="font-normal normal-case tracking-normal text-[#7b706b]">
             Showing {visible.length} of {filtered.length}
           </span>
         </div>
 
         {visible.length === 0 ? (
-          <p className="pg-empty">No {noun} match your search.</p>
+          <p className="m-0 px-4 py-10 text-center text-sm text-[#7b706b]">
+            No {noun} match your search.
+          </p>
         ) : (
-          <ul className="pg-list">
+          <ul className="m-0 list-none divide-y divide-[#e9dfdb] p-0">
             {visible.map((p) => {
               const s = statusOf(p);
               return (
-                <li className="pg-row" key={p.id}>
+                <li
+                  key={p.id}
+                  className="flex flex-col items-start gap-2.5 p-4 transition-colors hover:bg-[#fdf8f7] motion-reduce:transition-none sm:flex-row sm:items-center sm:justify-between sm:gap-4"
+                >
                   <div>
-                    <p className="pg-name">{p.name}</p>
-                    <p className="pg-meta">
+                    <p className="m-0 mb-1 text-sm font-semibold">{p.name}</p>
+                    <p className="m-0 text-xs text-[#7b706b]">
                       {p.sku} · {category.name} · ${fmt(p.price)} ·{" "}
                       {p.stockQuantity} units
                     </p>
                   </div>
-                  <div className="pg-actions">
-                    <span className={`pg-status ${s.key}`}>{s.label}</span>
+                  <div className="flex w-full flex-none items-center justify-between gap-4 text-[13px] sm:w-auto sm:justify-start">
+                    <span
+                      className={
+                        s.key === "low" ? "text-[#a8612a]" : "text-[#7b706b]"
+                      }
+                    >
+                      {s.label}
+                    </span>
                     <button
-                      className="pg-link"
+                      className={linkBtn}
                       aria-label={`Edit ${p.name}`}
                       onClick={() => setEditing(p)}
                     >
                       Edit
                     </button>
                     <button
-                      className="pg-link"
+                      className={linkBtn}
                       aria-label={`Delete ${p.name}`}
                       onClick={() => setDeleting(p)}
                     >
@@ -526,11 +531,15 @@ export default function AdminProducts() {
         )}
 
         {pageCount > 1 && (
-          <div className="pg-foot">
+          <div className="flex items-center justify-center gap-2 border-t border-[#e9dfdb] p-4">
             {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
               <button
                 key={n}
-                className={n === current ? "on" : ""}
+                className={`size-9 cursor-pointer rounded-full border text-[13px] font-medium ${focusRing} ${
+                  n === current
+                    ? "border-[#8f3f56] bg-[#8f3f56] text-white"
+                    : "border-[#e9dfdb] bg-white"
+                }`}
                 aria-current={n === current ? "page" : undefined}
                 onClick={() => setPage(n)}
               >
@@ -538,6 +547,7 @@ export default function AdminProducts() {
               </button>
             ))}
             <button
+              className={`size-9 cursor-pointer rounded-full border border-[#e9dfdb] bg-white text-[13px] font-medium disabled:cursor-default disabled:opacity-40 ${focusRing}`}
               aria-label="Next page"
               disabled={current === pageCount}
               onClick={() => setPage(current + 1)}
@@ -549,7 +559,7 @@ export default function AdminProducts() {
       </section>
 
       <button
-        className="pg-reset"
+        className={`mt-4 cursor-pointer border-0 bg-transparent p-0 text-xs text-[#7b706b] underline underline-offset-[3px] ${focusRing}`}
         onClick={() => reset().then(() => notify("Sample data restored"))}
       >
         Reset to sample data
@@ -575,7 +585,10 @@ export default function AdminProducts() {
 
       <div aria-live="polite">
         {toast && (
-          <div className="pg-toast" key={toast.id}>
+          <div
+            key={toast.id}
+            className="fixed bottom-7 left-1/2 z-[120] -translate-x-1/2 whitespace-nowrap rounded-full bg-[#241d1b] px-[22px] py-3 text-sm font-medium text-white"
+          >
             {toast.msg}
           </div>
         )}

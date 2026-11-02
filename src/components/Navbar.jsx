@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { Search, ShoppingBag, CircleUser, Menu, X } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { getUser } from "../auth";  
 import { useCart } from "../context/CartContext"; // CHANGED
 
 const links = [
@@ -21,7 +21,7 @@ function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const searchRef = useRef(null);
   const location = useLocation(); // used for the login redirect
-  const { user } = useAuth();
+  const user = getUser();
   const { count: cartCount } = useCart(); // CHANGED: real count, old "cartCount = 0" removed
   const { pathname } = location;
 

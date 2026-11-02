@@ -76,9 +76,12 @@ function Home() {
         Intuitive color, effortless application, and sensorial textures
         shaped in Seoul for the beauty of every day.
       </p>
-      <div className="mt-8">
+      <div className="mt-8 gap-3 ">
         <Button variant="secondary" to="/products">
-          Find more
+          Explore the collection
+        </Button>
+        <Button variant="secondary" to="/products" className="ml-3">
+          Learn more
         </Button>
       </div>
     </div>
@@ -183,9 +186,7 @@ function Home() {
         <div className={`${container} pb-16 lg:pb-24`}>
           <div className="mb-8 text-center">
             <p className={`${eyebrow} mb-2`}>Notes from our makeup community</p>
-            <h2 className="font-display text-4xl text-gray-900">
-              Softly polished
-            </h2>
+            <h2 className="font-display text-4xl text-gray-900">Softly polished</h2>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
@@ -194,10 +195,7 @@ function Home() {
                 key={r.id}
                 className="rounded-2xl border border-cherry/15 bg-white p-6"
               >
-                <p
-                  className="text-sm tracking-widest text-cherry"
-                  aria-label="5 out of 5 stars"
-                >
+                <p className="text-sm tracking-widest text-cherry" aria-label="5 out of 5 stars">
                   ★★★★★
                 </p>
                 <blockquote className="mt-3 font-display text-xl text-gray-800">
@@ -205,9 +203,7 @@ function Home() {
                 </blockquote>
                 <figcaption className="mt-4 text-sm">
                   <span className="font-semibold text-gray-900">{r.name}</span>
-                  <span className="block text-xs text-gray-500">
-                    {r.detail}
-                  </span>
+                  <span className="block text-xs text-gray-500">{r.detail}</span>
                 </figcaption>
               </figure>
             ))}

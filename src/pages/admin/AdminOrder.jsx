@@ -8,6 +8,7 @@ const styles = `
   .orders * { box-sizing: border-box; }
 
   .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
   .title { margin: 0 0 8px; font-family: Georgia, serif; font-size: 44px; font-weight: normal; }
   .sub { margin: 0 0 32px; font-size: 14px; color: #8a7a70; }
   .btn-primary {
@@ -33,21 +34,6 @@ const styles = `
     border-radius: 999px; background: #fffdfa; font-size: 13px; color: #3d3530; outline: none;
   }
   .search input:focus { border-color: #8b4a5e; }
-  .date-chip {
-    display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 22px;
-    border: 1px solid #eadfd6; border-radius: 999px; background: #fffdfa;
-    color: #8b4a5e; font-size: 13px; font-weight: bold;
-  }
-  .date-chip input[type="date"] {
-    border: none; background: transparent; color: #8b4a5e; font-size: 13px;
-    font-weight: bold; font-family: inherit; outline: none; cursor: pointer;
-  }
-  .date-to { font-weight: normal; color: #8a7a70; }
-  .date-clear {
-    border: none; background: #f6e3e3; color: #8b4a5e; border-radius: 999px;
-    padding: 5px 12px; font-size: 11px; cursor: pointer;
-  }
-
 
   /* Tabs */
   .tabs { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
@@ -92,7 +78,17 @@ const styles = `
   .pill.pending { background: #f5ead9; color: #a07a3c; }
   .pill.unfulfilled, .pill.cancelled, .pill.refunded { background: #f6e3e8; color: #8b4a5e; }
 
-  .view-btn { border: none; background: none; color: #8b4a5e; cursor: pointer; padding: 6px; }
+  /* Row action buttons */
+  .actions { display: flex; gap: 6px; }
+  .act {
+    padding: 6px 12px; border: 1px solid #eadfd6; border-radius: 999px;
+    background: #fffdfa; color: #8b4a5e; font-size: 11px; cursor: pointer;
+  }
+  .act:hover { background: #f6e3e8; }
+  .act:disabled { opacity: 0.4; cursor: default; }
+  .act.danger { color: #b3382c; }
+  .act.danger:hover { background: #fbe4e1; }
+
   .empty { padding: 48px 20px; text-align: center; color: #8a7a70; font-size: 13px; }
 
   /* Footer / pagination */
@@ -110,7 +106,7 @@ const styles = `
   .pages button:disabled { opacity: 0.4; cursor: default; }
   .foot-note { margin: 40px 0 0; text-align: center; font-size: 11px; color: #8a7a70; }
 
-  /* Details popup */
+  /* Popups */
   .overlay {
     position: fixed; inset: 0; z-index: 100; background: rgba(61,53,48,0.45);
     display: flex; align-items: center; justify-content: center; padding: 16px;
@@ -130,12 +126,27 @@ const styles = `
     padding: 12px 20px; border: 1px solid #eadfd6; border-radius: 999px;
     background: #fffdfa; color: #3d3530; font-size: 13px; cursor: pointer;
   }
+  .btn-danger {
+    padding: 12px 20px; border: none; border-radius: 999px;
+    background: #b3382c; color: white; font-size: 13px; cursor: pointer;
+  }
+
+  /* Add / Edit form */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .field { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #6b5d55; }
+  .field input, .field select {
+    height: 40px; padding: 0 12px; border: 1px solid #eadfd6; border-radius: 10px;
+    background: #fffdfa; font-size: 13px; color: #3d3530; outline: none;
+  }
+  .field input:focus, .field select:focus { border-color: #8b4a5e; }
+  .line-edit { display: grid; grid-template-columns: 1fr 80px auto; gap: 8px; margin-bottom: 8px; align-items: end; }
 
   @media (max-width: 1000px) { .stats { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 600px) {
     .orders { padding: 24px 16px 32px; }
     .title { font-size: 34px; }
     .stats { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
   }
 `;
 
@@ -166,14 +177,6 @@ function fmtTime(iso) {
 // "19 Oct 2026, 03:10 PM"
 function fmtDateTime(iso) {
   return `${fmtDate(iso)}, ${fmtTime(iso)}`;
-}
-
-// 2026-10-19T15:10:00+07:00 -> "2026-10-19" (local day, same format as <input type="date">)
-function localDay(iso) {
-  const d = new Date(iso);
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${d.getFullYear()}-${m}-${day}`;
 }
 
 // One day -> "19 Oct 2026", same month -> "17–19 Oct 2026", else "28 Sep 2026 – 02 Oct 2026"
@@ -256,13 +259,13 @@ function AdminOrder() {
 
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("All");
-  const [dateFrom, setDateFrom] = useState(""); // "YYYY-MM-DD" or ""
-  const [dateTo, setDateTo] = useState("");
   const [newestFirst, setNewestFirst] = useState(true);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState([]);
-  const [overrides, setOverrides] = useState({}); // { orderKey: "Fulfilled" | "Unfulfilled" }
+  const [overrides, setOverrides] = useState({}); // { orderKey: "Fulfilled" | "Unfulfilled" | "Cancelled" }
   const [viewing, setViewing] = useState(null);   // holds the order key, or null
+  const [form, setForm] = useState(null);         // null = closed, otherwise the add/edit form data
+  const [deleting, setDeleting] = useState(null); // order key waiting for delete confirmation
 
   // Load the teacher's JSON files
   useEffect(() => {
@@ -291,11 +294,13 @@ function AdminOrder() {
         ...inv,
         items,
         key,
+        // A name/email typed in the Edit or Add form wins over the account data
         customerName:
-          inv.customerId === null && inv.shipping
+          inv.customerName ||
+          (inv.customerId === null && inv.shipping
             ? `${inv.shipping.firstName} ${inv.shipping.lastName}`
-            : accountName(inv.customerId === null ? null : acc),
-        email: acc?.email || inv.customerEmail || (inv.customerId === null ? "No email" : ""),
+            : accountName(inv.customerId === null ? null : acc)),
+        email: inv.customerEmail || acc?.email || (inv.customerId === null ? "No email" : ""),
         itemCount: items.reduce((sum, l) => sum + l.quantity, 0),
         payment: paymentStatus(inv.status),
         fulfillment: overrides[key] || defaultFulfillment(inv),
@@ -319,10 +324,6 @@ function AdminOrder() {
   const filtered = orders
     .filter((o) => tab === "All" || o.fulfillment === tab)
     .filter((o) => `${o.invoiceNumber} ${o.customerName} ${o.email}`.toLowerCase().includes(q))
-    .filter((o) => {
-      const day = localDay(o.createdAt);
-      return (!dateFrom || day >= dateFrom) && (!dateTo || day <= dateTo);
-    })
     .sort((a, b) => {
       const diff = new Date(b.createdAt) - new Date(a.createdAt);
       return newestFirst ? diff : -diff;
@@ -361,8 +362,109 @@ function AdminOrder() {
     exportCsv(rows);
   }
 
+  // ----- Add / Edit form -----
+  function emptyLine() {
+    return { productId: products[0]?.id ?? "", quantity: 1 };
+  }
+
+  function openAdd() {
+    setForm({
+      mode: "add", key: null, customerName: "", email: "",
+      status: "PAID", fulfillment: "Unfulfilled", method: "Cash",
+      discount: 0, tax: 0, items: [emptyLine()],
+    });
+  }
+
+  function openEdit(o) {
+    setForm({
+      mode: "edit", key: o.key, customerName: o.customerName,
+      email: o.email === "No email" ? "" : o.email,
+      status: String(o.status).toUpperCase(), fulfillment: o.fulfillment,
+      method: (o.payments || [])[0]?.method || "Cash",
+      discount: o.discount || 0, tax: o.tax || 0,
+      items: o.items.map((l) => ({ productId: l.productId, quantity: l.quantity })),
+    });
+  }
+
+  function setField(name, value) {
+    setForm((cur) => ({ ...cur, [name]: value }));
+  }
+  function setLine(i, name, value) {
+    setForm((cur) => ({
+      ...cur,
+      items: cur.items.map((l, idx) => (idx === i ? { ...l, [name]: value } : l)),
+    }));
+  }
+  function addLine() {
+    setForm((cur) => ({ ...cur, items: [...cur.items, emptyLine()] }));
+  }
+  function removeLine(i) {
+    setForm((cur) => ({ ...cur, items: cur.items.filter((_, idx) => idx !== i) }));
+  }
+
+  // Turn the form's product lines into invoice lines with prices
+  // (change p?.price if your products.json uses another field name)
+  function buildLines(f) {
+    return f.items.map((l) => {
+      const p = products.find((x) => String(x.id) === String(l.productId));
+      const quantity = Math.max(1, Number(l.quantity) || 1);
+      const price = Number(p?.price || 0);
+      return { productId: p ? p.id : l.productId, quantity, unitPrice: price, lineTotal: price * quantity };
+    });
+  }
+
+  function saveForm() {
+    const lines = buildLines(form);
+    const subtotal = lines.reduce((s, l) => s + l.lineTotal, 0);
+    const discount = Number(form.discount) || 0;
+    const tax = Number(form.tax) || 0;
+    const total = Math.max(0, subtotal - discount + tax);
+
+    const changes = {
+      customerName: form.customerName.trim() || "Walk-in customer",
+      customerEmail: form.email.trim(),
+      status: form.status,
+      items: lines, subtotal, discount, tax, total,
+    };
+
+    if (form.mode === "add") {
+      const now = new Date();
+      const stamp = now.toISOString().slice(0, 10).replace(/-/g, "");
+      const id = `new-${Date.now()}`;
+      const newInvoice = {
+        id,
+        invoiceNumber: `INV-${stamp}-${String(Math.floor(Math.random() * 100000)).padStart(5, "0")}`,
+        customerId: null,
+        createdAt: now.toISOString(),
+        payments: [{ method: form.method, amount: total }],
+        ...changes,
+      };
+      setInvoices((cur) => [newInvoice, ...cur]);
+      setFulfillment(id, form.fulfillment);
+    } else {
+      setInvoices((cur) =>
+        cur.map((inv) =>
+          (inv.id ?? inv.invoiceNumber) === form.key
+            ? { ...inv, ...changes, payments: [{ ...(inv.payments?.[0] || {}), method: form.method }] }
+            : inv
+        )
+      );
+      setFulfillment(form.key, form.fulfillment);
+    }
+    setForm(null);
+  }
+
+  // ----- Delete -----
+  function confirmDelete() {
+    setInvoices((cur) => cur.filter((inv) => (inv.id ?? inv.invoiceNumber) !== deleting));
+    setSelected((cur) => cur.filter((k) => k !== deleting));
+    if (viewing === deleting) setViewing(null);
+    setDeleting(null);
+  }
+
   // The popup always reads the latest data of the order
   const viewed = viewing !== null ? orders.find((o) => o.key === viewing) : null;
+  const deletingOrder = deleting !== null ? orders.find((o) => o.key === deleting) : null;
 
   return (
     <div className="orders">
@@ -375,14 +477,17 @@ function AdminOrder() {
           <p className="sub">A little care in every order. Manage them all here.</p>
         </div>
 
-        <button className="btn-primary" onClick={handleExport}>
-          <Icon>
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <path d="m7 10 5 5 5-5" />
-            <path d="M12 15V3" />
-          </Icon>
-          Export orders
-        </button>
+        <div className="head-actions">
+          <button className="btn-primary" onClick={openAdd}>+ Add new order</button>
+          <button className="btn-primary" onClick={handleExport}>
+            <Icon>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <path d="m7 10 5 5 5-5" />
+              <path d="M12 15V3" />
+            </Icon>
+            Export orders
+          </button>
+        </div>
       </div>
 
       {loading && <p className="empty">Loading orders…</p>}
@@ -414,7 +519,7 @@ function AdminOrder() {
             </div>
           </div>
 
-          {/* Search + date range */}
+          {/* Search */}
           <div className="toolbar">
             <div className="search">
               <Icon>
@@ -430,47 +535,6 @@ function AdminOrder() {
                   setPage(1);
                 }}
               />
-            </div>
-            <div className="date-chip">
-              <Icon>
-                <rect x="3" y="4" width="18" height="18" rx="2" />
-                <path d="M16 2v4M8 2v4M3 10h18" />
-              </Icon>
-              <input
-                type="date"
-                aria-label="From date"
-                value={dateFrom}
-                max={dateTo || undefined}
-                onClick={(e) => e.target.showPicker?.()}
-                onChange={(e) => {
-                  setDateFrom(e.target.value);
-                  setPage(1);
-                }}
-              />
-              <span className="date-to">to</span>
-              <input
-                type="date"
-                aria-label="To date"
-                value={dateTo}
-                min={dateFrom || undefined}
-                onClick={(e) => e.target.showPicker?.()}
-                onChange={(e) => {
-                  setDateTo(e.target.value);
-                  setPage(1);
-                }}
-              />
-              {(dateFrom || dateTo) && (
-                <button
-                  className="date-clear"
-                  onClick={() => {
-                    setDateFrom("");
-                    setDateTo("");
-                    setPage(1);
-                  }}
-                >
-                  Clear
-                </button>
-              )}
             </div>
           </div>
 
@@ -516,7 +580,7 @@ function AdminOrder() {
                     <th>Total</th>
                     <th>Payment</th>
                     <th>Fulfillment</th>
-                    <th>View</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -548,13 +612,13 @@ function AdminOrder() {
                       </td>
                       <td><span className={`pill ${o.payment.toLowerCase()}`}>{o.payment}</span></td>
                       <td><span className={`pill ${o.fulfillment.toLowerCase()}`}>{o.fulfillment}</span></td>
-                      <td>
-                        <button className="view-btn" aria-label={`View ${o.invoiceNumber}`}>
-                          <Icon>
-                            <path d="M7 17 17 7" />
-                            <path d="M8 7h9v9" />
-                          </Icon>
-                        </button>
+                      {/* Action buttons must not trigger the row click */}
+                      <td onClick={(e) => e.stopPropagation()}>
+                        <div className="actions">
+                          <button className="act" onClick={() => setViewing(o.key)}>View</button>
+                          <button className="act" onClick={() => openEdit(o)}>Edit</button>
+                          <button className="act danger" onClick={() => setDeleting(o.key)}>Delete</button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -632,7 +696,119 @@ function AdminOrder() {
                   {viewed.fulfillment === "Fulfilled" ? "Mark as unfulfilled" : "Mark as fulfilled"}
                 </button>
               )}
+              <button
+                className="btn-outline"
+                onClick={() => {
+                  const o = viewed;
+                  setViewing(null);
+                  openEdit(o);
+                }}
+              >
+                Edit
+              </button>
               <button className="btn-outline" onClick={() => setViewing(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add / Edit popup */}
+      {form && (
+        <div className="overlay" onClick={() => setForm(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <h3>{form.mode === "add" ? "Add new order" : "Edit order"}</h3>
+              <button className="close" onClick={() => setForm(null)} aria-label="Close">×</button>
+            </div>
+
+            <div className="form-grid">
+              <label className="field">Customer name
+                <input value={form.customerName} onChange={(e) => setField("customerName", e.target.value)} />
+              </label>
+              <label className="field">Email
+                <input value={form.email} onChange={(e) => setField("email", e.target.value)} />
+              </label>
+              <label className="field">Payment status
+                <select value={form.status} onChange={(e) => setField("status", e.target.value)}>
+                  <option value="PAID">Paid</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="REFUNDED">Refunded</option>
+                </select>
+              </label>
+              <label className="field">Fulfillment
+                <select value={form.fulfillment} onChange={(e) => setField("fulfillment", e.target.value)}>
+                  <option>Unfulfilled</option>
+                  <option>Fulfilled</option>
+                  <option>Cancelled</option>
+                </select>
+              </label>
+              <label className="field">Payment method
+                <select value={form.method} onChange={(e) => setField("method", e.target.value)}>
+                  <option>Cash</option>
+                  <option>Card</option>
+                  <option>PayPal</option>
+                </select>
+              </label>
+              <span />
+              <label className="field">Discount ($)
+                <input type="number" min="0" value={form.discount} onChange={(e) => setField("discount", e.target.value)} />
+              </label>
+              <label className="field">Tax ($)
+                <input type="number" min="0" value={form.tax} onChange={(e) => setField("tax", e.target.value)} />
+              </label>
+            </div>
+
+            <p className="muted" style={{ marginBottom: 8 }}>Products</p>
+            {form.items.map((l, i) => (
+              <div className="line-edit" key={i}>
+                <label className="field">
+                  <select value={l.productId} onChange={(e) => setLine(i, "productId", e.target.value)}>
+                    {products.map((p) => (
+                      <option key={p.id} value={p.id}>{p.name} ({money(p.price)})</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="field">
+                  <input type="number" min="1" value={l.quantity} onChange={(e) => setLine(i, "quantity", e.target.value)} />
+                </label>
+                <button className="act danger" onClick={() => removeLine(i)} disabled={form.items.length === 1}>Remove</button>
+              </div>
+            ))}
+            <button className="act" onClick={addLine}>+ Add product</button>
+
+            <div className="sum-row big">
+              <span>Total</span>
+              <span>
+                {money(
+                  Math.max(
+                    0,
+                    buildLines(form).reduce((s, l) => s + l.lineTotal, 0) -
+                      (Number(form.discount) || 0) +
+                      (Number(form.tax) || 0)
+                  )
+                )}
+              </span>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-primary" onClick={saveForm}>
+                {form.mode === "add" ? "Create order" : "Save changes"}
+              </button>
+              <button className="btn-outline" onClick={() => setForm(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation popup */}
+      {deletingOrder && (
+        <div className="overlay" onClick={() => setDeleting(null)}>
+          <div className="modal" style={{ maxWidth: 400 }} onClick={(e) => e.stopPropagation()}>
+            <h3>Delete order?</h3>
+            <p className="muted">{deletingOrder.invoiceNumber} will be removed from the list.</p>
+            <div className="modal-actions">
+              <button className="btn-danger" onClick={confirmDelete}>Yes, delete</button>
+              <button className="btn-outline" onClick={() => setDeleting(null)}>Cancel</button>
             </div>
           </div>
         </div>

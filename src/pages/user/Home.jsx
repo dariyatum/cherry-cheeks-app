@@ -64,11 +64,14 @@ const container = "mx-auto max-w-[90%] px-5 md:px-8";
 function Home() {
   return (
     <div className="bg-cream">
- {/* Hero: text left, photo right, soft blend */}
+{/* Hero: text left, photo right, soft blend */}
 <section className="relative w-full overflow-hidden bg-[#ebe5dc]">
   {/* Text */}
   <div className="relative z-10 flex px-5 py-16 md:px-8 lg:min-h-[calc(100vh-5rem)] lg:w-1/2 lg:items-center lg:py-24 lg:pl-[calc(5vw+2rem)] lg:pr-0">
     <div className="max-w-lg">
+      <p className={eyebrow} mb-6>
+        Korean color expertise · Dermatologically tested · Made in Seoul
+      </p>
       <h1 className="font-display text-5xl leading-[1.05] text-gray-900 sm:text-6xl lg:text-7xl">
         Reveal your quiet radiance.
       </h1>
@@ -76,13 +79,30 @@ function Home() {
         Intuitive color, effortless application, and sensorial textures
         shaped in Seoul for the beauty of every day.
       </p>
-      <div className="mt-8 gap-3 ">
+      <p className="mt-4 text-sm text-gray-500">
+        Barrier‑mindful formulas that support real skin texture — never conceal it.
+      </p>
+      <div className="mt-10 gap-4">
         <Button variant="secondary" to="/products">
           Explore the collection
         </Button>
         <Button variant="secondary" to="/products" className="ml-3">
           Learn more
         </Button>
+      </div>
+      <div className="mt-12 pt-8 border-t border-cherry/10 flex items-center gap-4 text-sm text-gray-500">
+        <span className="flex items-center gap-2">
+          <span className="w-1 h-1 bg-cherry rounded-full" />
+          Dermatologically tested
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="w-1 h-1 bg-cherry rounded-full" />
+          Barrier‑mindful
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="w-1 h-1 bg-cherry rounded-full" />
+          Seoul‑made
+        </span>
       </div>
     </div>
   </div>

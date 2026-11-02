@@ -63,7 +63,7 @@ const container = "mx-auto max-w-[90%] px-5 md:px-8";
 
 function Home() {
   return (
-    <div className="bg-cream">
+    <div className="bg-[#faf7f2]">
 {/* Hero: text left, photo right, soft blend */}
 <section className="relative w-full overflow-hidden bg-[#ebe5dc]">
   {/* Text */}
